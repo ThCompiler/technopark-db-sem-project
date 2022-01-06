@@ -1,0 +1,59 @@
+package middleware
+
+import (
+	routing "github.com/qiangxue/fasthttp-routing"
+	"net/http"
+	"runtime/debug"
+	hf "tech-db-forum/internal/pkg/handler/handler_interfaces"
+	"tech-db-forum/internal/pkg/utilits"
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+
+	"github.com/sirupsen/logrus"
+)
+
+type UtilitiesMiddleware struct {
+	log utilits.LogObject
+}
+
+func NewUtilitiesMiddleware(log *logrus.Logger) UtilitiesMiddleware {
+	return UtilitiesMiddleware{
+		log: utilits.NewLogObject(log),
+	}
+}
+
+func (mw *UtilitiesMiddleware) CheckPanic() hf.Handler {
+	return hf.HandlerFunc(func(ctx *routing.Context) error {
+		defer func(log *logrus.Entry, ctx *routing.Context) {
+			if err := recover(); err != nil {
+				responseErr := http.StatusInternalServerError
+
+				log.Errorf("detacted critical error: %v, with stack: %s", err, debug.Stack())
+				ctx.SetStatusCode(responseErr)
+			}
+		}(mw.log.Log(ctx), ctx)
+		return ctx.Next()
+	})
+}
+
+func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
+	return hf.HandlerFunc(func(ctx *routing.Context) error {
+		start := time.Now()
+		upgradeLogger := mw.log.BaseLog().WithFields(logrus.Fields{
+			"urls":        ctx.URI(),
+			"method":      ctx.Method(),
+			"remote_addr": ctx.RemoteAddr(),
+			"work_time":   time.Since(start).Milliseconds(),
+			"req_id":      uuid.NewV4(),
+		})
+		ctx.SetUserValue("logger", upgradeLogger)
+		upgradeLogger.Info("Log was upgraded")
+
+		err := ctx.Next()
+
+		executeTime := time.Since(start).Milliseconds()
+		upgradeLogger.Infof("work time [ms]: %v", executeTime)
+		return err
+	})
+}

@@ -1,0 +1,9 @@
+log_level = "debug"
+log_path = "./logs/"
+bind_addr = ":500"
+domen = "localhost"
+
+[repository]
+database_url = "port=5432 user=thecompiler password=qwerty dbname=forum_db sslmode=disable"
+
+
