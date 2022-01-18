@@ -1,11 +1,19 @@
 package handler_factory
 
 import (
-	useUser "tech-db-forum/internal/app/user/usecase"
+	repForum "tech-db-forum/internal/app/forum/repository"
+	repPost "tech-db-forum/internal/app/post/repository"
+	repService "tech-db-forum/internal/app/service/repository"
+	repThread "tech-db-forum/internal/app/thread/repository"
+	repUser "tech-db-forum/internal/app/user/repository"
 )
 
-//go:generate mockgen -destination=mocks/mock_usecase_factory.go -package=mock_usecase_factory . UsecaseFactory
+//go:generate mockgen -destination=mocks/mock_repository_factory.go -package=mock_repository_factory . RepositoryFactory
 
-type UsecaseFactory interface {
-	GetUserUsecase() useUser.Usecase
+type RepositoryFactory interface {
+	GetUserRepository() repUser.Repository
+	GetForumRepository() repForum.Repository
+	GetPostRepository() repPost.Repository
+	GetServiceRepository() repService.Repository
+	GetThreadRepository() repThread.Repository
 }

@@ -1,11 +1,9 @@
 package postgresql_utilits
 
 import (
+	"github.com/jmoiron/sqlx"
 	"tech-db-forum/internal/app"
 	"tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
-
-	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -18,7 +16,7 @@ const (
 func AddPagination(tableName string, pag *models.Pagination, db *sqlx.DB) (limit int64, offset int64, err error) {
 	var numberRows int64
 	if err = db.QueryRow(queryStat, tableName).Scan(&numberRows); err != nil {
-		return app.InvalidInt, app.InvalidInt, repository.NewDBError(err)
+		return app.InvalidInt, app.InvalidInt, NewDBError(err)
 	}
 
 	numberRows -= pag.Limit

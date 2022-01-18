@@ -11,14 +11,14 @@ const (
 )
 
 type HandlerFactory struct {
-	usecaseFactory    UsecaseFactory
+	repositoryFactory    RepositoryFactory
 	logger            *logrus.Logger
 	urlHandler        *map[string]app.Handler
 }
 
-func NewFactory(logger *logrus.Logger, usecaseFactory UsecaseFactory) *HandlerFactory {
+func NewFactory(logger *logrus.Logger, repositoryFactory RepositoryFactory) *HandlerFactory {
 	return &HandlerFactory{
-		usecaseFactory:    usecaseFactory,
+		repositoryFactory:    repositoryFactory,
 		logger:            logger,
 	}
 }

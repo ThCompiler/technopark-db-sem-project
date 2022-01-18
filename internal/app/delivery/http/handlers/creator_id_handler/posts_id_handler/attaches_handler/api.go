@@ -6,14 +6,14 @@ import (
 	"tech-db-forum/internal/app/delivery/http/handlers/base_handler"
 	"tech-db-forum/internal/app/delivery/http/handlers/handler_errors"
 	"tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
 	repository_postgresql "tech-db-forum/internal/app/repository/attaches/postgresql"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 )
 
 var codesByErrorsPOST = base_handler.CodeMap{
-	repository.NotFound: {
+	postgresql_utilits.NotFound: {
 		http.StatusNotFound, handler_errors.AttachNotFound, logrus.ErrorLevel},
-	repository.DefaultErrDB: {
+	postgresql_utilits.DefaultErrDB: {
 		http.StatusInternalServerError, handler_errors.BDError, logrus.ErrorLevel},
 	models.IncorrectType: {
 		http.StatusUnprocessableEntity, handler_errors.IncorrectType, logrus.WarnLevel},

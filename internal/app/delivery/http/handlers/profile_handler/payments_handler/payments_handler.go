@@ -7,10 +7,10 @@ import (
 	"tech-db-forum/internal/app/delivery/http/handlers/handler_errors"
 	"tech-db-forum/internal/app/delivery/http/models"
 	db_models "tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
 	"tech-db-forum/internal/app/usecase/payments"
 	session_client "tech-db-forum/internal/microservices/auth/delivery/grpc/client"
 	session_middleware "tech-db-forum/internal/microservices/auth/sessions/middleware"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 
 	"github.com/sirupsen/logrus"
 )
@@ -73,7 +73,7 @@ func (h *PaymentsHandler) GET(w http.ResponseWriter, r *http.Request) {
 	userPayments, err := h.paymentsUsecase.GetUserPayments(userID.(int64),
 		&db_models.Pagination{Limit: limit, Offset: offset})
 	if err != nil {
-		if err == repository.NotFound {
+		if err == postgresql_utilits.NotFound {
 			h.Respond(w, r, http.StatusNoContent, http_models.OkResponse{
 				Ok: handler_errors.PaymentsNotFound.Error(),
 			})

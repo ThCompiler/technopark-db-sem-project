@@ -6,11 +6,11 @@ import (
 	"tech-db-forum/internal/app/delivery/http/handlers/base_handler"
 	"tech-db-forum/internal/app/delivery/http/handlers/handler_errors"
 	"tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 )
 
 var codesByErrorsPOST = base_handler.CodeMap{
-	repository.DefaultErrDB: {
+	postgresql_utilits.DefaultErrDB: {
 		http.StatusInternalServerError, handler_errors.BDError, logrus.ErrorLevel},
 	models.InvalidPostId: {
 		http.StatusUnprocessableEntity, handler_errors.IncorrectPostId, logrus.WarnLevel},
@@ -19,6 +19,6 @@ var codesByErrorsPOST = base_handler.CodeMap{
 }
 
 var codesByErrorsGET = base_handler.CodeMap{
-	repository.DefaultErrDB: {
+	postgresql_utilits.DefaultErrDB: {
 		http.StatusInternalServerError, handler_errors.BDError, logrus.ErrorLevel},
 }

@@ -5,9 +5,9 @@ import (
 	"tech-db-forum/internal/app/delivery/http/handlers/base_handler"
 	"tech-db-forum/internal/app/delivery/http/handlers/handler_errors"
 	"tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
 	repository_user "tech-db-forum/internal/app/repository/user/postgresql"
 	useUser "tech-db-forum/internal/app/usecase/user"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,6 +25,6 @@ var codeByError = base_handler.CodeMap{
 		http.StatusUnprocessableEntity, handler_errors.NicknameAlreadyExist, logrus.InfoLevel},
 	models.IncorrectEmailOrPassword: {
 		http.StatusUnprocessableEntity, handler_errors.IncorrectLoginOrPassword, logrus.InfoLevel},
-	repository.DefaultErrDB: {
+	postgresql_utilits.DefaultErrDB: {
 		http.StatusInternalServerError, handler_errors.BDError, logrus.ErrorLevel},
 }

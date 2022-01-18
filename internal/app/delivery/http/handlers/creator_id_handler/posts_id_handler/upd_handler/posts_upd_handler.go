@@ -10,10 +10,10 @@ import (
 	"tech-db-forum/internal/app/delivery/http/models"
 	"tech-db-forum/internal/app/middleware"
 	models_db "tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
 	usePosts "tech-db-forum/internal/app/usecase/posts"
 	session_client "tech-db-forum/internal/microservices/auth/delivery/grpc/client"
 	session_middleware "tech-db-forum/internal/microservices/auth/sessions/middleware"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 
 	"github.com/gorilla/mux"
 	"github.com/microcosm-cc/bluemonday"
@@ -77,7 +77,7 @@ func (h *PostsUpdateHandler) PUT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if req.AwardsId == 0 {
-		req.AwardsId = repository.NoAwards
+		req.AwardsId = postgresql_utilits.NoAwards
 	}
 
 	if err = h.postsUsecase.Update(h.Log(r), &models_db.UpdatePost{ID: postId, Title: req.Title,

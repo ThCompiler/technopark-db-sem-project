@@ -10,7 +10,7 @@ import (
 	"tech-db-forum/internal/app/delivery/http/handlers"
 	"tech-db-forum/internal/app/delivery/http/models"
 	models_data "tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -79,7 +79,7 @@ func (s *CreatorTestSuite) TestCreatorIdHandler_POST_Invalid_Body() {
 		EXPECT().
 		GetProfile(tmp).
 		Times(s.Tb.ExpectedMockTimes).
-		Return(nil, &app.GeneralError{Err: repository.DefaultErrDB})
+		Return(nil, &app.GeneralError{Err: postgresql_utilits.DefaultErrDB})
 	s.handler.POST(recorder, reader)
 	assert.Equal(s.T(), s.Tb.ExpectedCode, recorder.Code)
 }
@@ -107,7 +107,7 @@ func (s *CreatorTestSuite) TestCreatorIdHandler_POST_DB_Error() {
 		EXPECT().
 		GetProfile(tmp).
 		Times(s.Tb.ExpectedMockTimes).
-		Return(nil, &app.GeneralError{Err: repository.DefaultErrDB})
+		Return(nil, &app.GeneralError{Err: postgresql_utilits.DefaultErrDB})
 	s.handler.POST(recorder, reader)
 	assert.Equal(s.T(), s.Tb.ExpectedCode, recorder.Code)
 }

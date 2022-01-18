@@ -2,6 +2,7 @@ package posts_handler
 
 import (
 	"net/http"
+	"strconv"
 	csrf_middleware "tech-db-forum/internal/app/csrf/middleware"
 	repository_jwt "tech-db-forum/internal/app/csrf/repository/jwt"
 	usecase_csrf "tech-db-forum/internal/app/csrf/usecase"
@@ -10,11 +11,10 @@ import (
 	"tech-db-forum/internal/app/delivery/http/models"
 	"tech-db-forum/internal/app/middleware"
 	db_models "tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
 	usePosts "tech-db-forum/internal/app/usecase/posts"
 	session_client "tech-db-forum/internal/microservices/auth/delivery/grpc/client"
 	session_middleware "tech-db-forum/internal/microservices/auth/sessions/middleware"
-	"strconv"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 
 	"github.com/microcosm-cc/bluemonday"
 
@@ -143,7 +143,7 @@ func (h *PostsHandler) POST(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.AwardsId == 0 {
-		req.AwardsId = repository.NoAwards
+		req.AwardsId = postgresql_utilits.NoAwards
 	}
 
 	aw := &db_models.CreatePost{

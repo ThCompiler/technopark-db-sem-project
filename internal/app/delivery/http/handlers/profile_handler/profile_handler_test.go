@@ -9,7 +9,7 @@ import (
 	"tech-db-forum/internal/app/delivery/http/handlers"
 	models_http "tech-db-forum/internal/app/delivery/http/models"
 	"tech-db-forum/internal/app/models"
-	"tech-db-forum/internal/app/repository"
+	"tech-db-forum/internal/pkg/utilits/postgresql"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -77,7 +77,7 @@ func (s *ProfileTestSuite) TestProfileHandler_GET_NotFound() {
 	s.MockUserUsecase.EXPECT().
 		GetProfile(userID).
 		Times(s.Tb.ExpectedMockTimes).
-		Return(nil, repository.NotFound)
+		Return(nil, postgresql_utilits.NotFound)
 	s.handler.GET(recorder, reader)
 	assert.Equal(s.T(), s.Tb.ExpectedCode, recorder.Code)
 }
