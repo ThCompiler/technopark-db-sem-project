@@ -55,6 +55,7 @@ func (r *UserRepository) Create(us *user.User) ([]user.User, error) {
 	if  err != nil {
 		return nil, postgresql_utilits.NewDBError(err)
 	}
+
 	isCorrect := 0
 	var res []user.User
 	for rows.Next() {

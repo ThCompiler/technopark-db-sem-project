@@ -3,6 +3,6 @@ package repository
 import "github.com/pkg/errors"
 
 var (
-	NotFoundForumSlug = errors.New("not found forum with this slug")
+	NotFoundForumSlugOrUserOrThread = errors.New("not found forum with this slug or user or thread")
 	NotFoundPostParent = errors.New("not found post parent")
 )

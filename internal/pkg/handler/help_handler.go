@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"tech-db-forum/internal/app"
-	"tech-db-forum/internal/app/delivery/http/handlers/handler_errors"
+	"tech-db-forum/internal/app/thread"
+	"tech-db-forum/internal/pkg/handler/handler_errors"
 	"tech-db-forum/internal/pkg/utilits/delivery"
 )
 
@@ -98,6 +99,49 @@ func (h *HelpHandlers) GetStringFromQueries(ctx *routing.Context, name string) (
 	}
 
 	return string(value), app.InvalidInt
+}
+
+// GetStringFromParam HTTPErrors
+//		Status 400 handler_errors.InvalidQueries
+func (h *HelpHandlers) GetStringFromParam(ctx *routing.Context, name string) (string, int) {
+	value := ctx.Param(name)
+	if value == "" {
+		return "", EmptyQuery
+	}
+
+	return value, app.InvalidInt
+}
+
+// GetArrayStringFromQueries HTTPErrors
+//		Status 400 handler_errors.InvalidQueries
+func (h *HelpHandlers) GetArrayStringFromQueries(ctx *routing.Context, name string) ([]string, int) {
+	values := ctx.URI().QueryArgs().PeekMultiBytes([]byte(name))
+	if values == nil {
+		return nil, EmptyQuery
+	}
+
+	res := make([]string, len(values))
+	for id, value := range values {
+		res[id] = string(value)
+	}
+	return res, app.InvalidInt
+}
+
+// GetThreadSlugFromParam HTTPErrors
+//		Status 400 handler_errors.InvalidParameters
+func (h *HelpHandlers) GetThreadSlugFromParam(ctx *routing.Context, name string) (*thread.ThreadPK, int) {
+	value := ctx.Param(name)
+	if value == "" {
+		return nil, EmptyQuery
+	}
+
+	res := &thread.ThreadPK{}
+	res.SetSlug(string(value))
+	id, err := strconv.ParseInt(string(value), 10, 64)
+	if err == nil {
+		res.SetId(id)
+	}
+	return res, app.InvalidInt
 }
 
 func (h *HelpHandlers) GetRequestBody(ctx *routing.Context, reqStruct easyjson.Unmarshaler) error {

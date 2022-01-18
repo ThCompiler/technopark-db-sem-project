@@ -8,7 +8,6 @@ import (
 
 	"tech-db-forum/internal/app/factories/handler_factory"
 	"tech-db-forum/internal/app/factories/repository_factory"
-	"tech-db-forum/internal/app/factories/usecase_factory"
 	"tech-db-forum/internal/app/middleware"
 
 	"tech-db-forum/internal/app"
@@ -63,9 +62,7 @@ func (s *Server) Start(config *internal.Config) error {
 	routerApi := router.Group("/api/")
 
 	repositoryFactory := repository_factory.NewRepositoryFactory(s.logger, s.connections)
-
-	usecaseFactory := usecase_factory.NewUsecaseFactory(repositoryFactory)
-	factory := handler_factory.NewFactory(s.logger, usecaseFactory)
+	factory := handler_factory.NewFactory(s.logger, repositoryFactory)
 	hs := factory.GetHandleUrls()
 
 	for apiUrl, h := range *hs {

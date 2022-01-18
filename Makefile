@@ -21,7 +21,7 @@ build-docker:
 	docker build -t thecompiler .
 
 run:
-	docker run -p 5000:5000 --name thecompiler -t thecompiler
+	docker run -d --memory 2G --log-opt max-size=5M --log-opt max-file=3 -p 5000:5000 --name thecompiler -t thecompiler
 
 run-build: build-docker run
 

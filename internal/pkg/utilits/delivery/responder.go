@@ -6,16 +6,22 @@ import (
 	routing "github.com/qiangxue/fasthttp-routing"
 	"net/http"
 	"strconv"
-	"tech-db-forum/internal/app/delivery/http/models"
 	"tech-db-forum/internal/pkg/utilits"
 )
+
+//go:generate easyjson -disallow_unknown_fields responder.go
+
+//easyjson:json
+type ErrResponse struct {
+	Err string `json:"message"`
+}
 
 type Responder struct {
 	utilits.LogObject
 }
 
 func (h *Responder) Error(ctx *routing.Context, code int, err error) {
-	h.Respond(ctx, code, http_models.ErrResponse{Err: err.Error()})
+	h.Respond(ctx, code, ErrResponse{Err: err.Error()})
 }
 
 func (h *Responder) Respond(ctx *routing.Context, code int, data easyjson.Marshaler) {
