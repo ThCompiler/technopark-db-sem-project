@@ -12,8 +12,8 @@ type StatusResponse struct {
 	Post   string `json:"post"`
 }
 
-func ToStatusResponse(usr *service.Status) StatusResponse {
-	return StatusResponse{
+func ToStatusResponse(usr *service.Status) *StatusResponse {
+	return &StatusResponse{
 		User:   usr.User,
 		Forum:  usr.Forum,
 		Thread: usr.Thread,

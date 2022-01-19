@@ -49,8 +49,9 @@ func (h *UserCreateHandler) POST(ctx *routing.Context) error {
 	})
 
 	if err == postgresql_utilits.Conflict {
-		h.Log(ctx).Warnf("conflict with qury %v", req)
+		h.Log(ctx).Warnf("conflict with request %v", req)
 		h.Respond(ctx, http.StatusConflict, http_delivery.ToUsersResponse(u))
+		return nil
 	}
 
 	if err != nil {

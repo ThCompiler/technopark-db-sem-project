@@ -1,6 +1,6 @@
 log_level = "debug"
 log_path = "./logs/"
-bind_addr = ":500"
+bind_addr = ":5000"
 domen = "localhost"
 
 [repository]

@@ -58,6 +58,6 @@ func (h *PostCreateHandler) POST(ctx *routing.Context) error {
 	}
 
 	h.Log(ctx).Debugf("create post %v", pst)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToPostsResponse(pst))
+	h.Respond(ctx, http.StatusCreated, http_delivery.ToPostsResponse(pst))
 	return nil
 }

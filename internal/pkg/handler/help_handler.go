@@ -136,8 +136,8 @@ func (h *HelpHandlers) GetThreadSlugFromParam(ctx *routing.Context, name string)
 	}
 
 	res := &thread.ThreadPK{}
-	res.SetSlug(string(value))
-	id, err := strconv.ParseInt(string(value), 10, 64)
+	res.SetSlug(value)
+	id, err := strconv.ParseInt(value, 10, 64)
 	if err == nil {
 		res.SetId(id)
 	}

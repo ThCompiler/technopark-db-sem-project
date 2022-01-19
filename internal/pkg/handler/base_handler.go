@@ -101,11 +101,11 @@ func (h *BaseHandler) Connect(route *routing.Route) {
 func (h *BaseHandler) ServeHTTP(ctx *routing.Context) error {
 	h.PrintRequest(ctx)
 	ok := true
-	var handler hf.HandlerFunc
+	var hndlr hf.HandlerFunc
 
-	handler, ok = h.handlerMethods[string(ctx.Method())]
+	hndlr, ok = h.handlerMethods[string(ctx.Method())]
 	if ok {
-		handler(ctx)
+		hndlr(ctx)
 	} else {
 		h.Log(ctx).Errorf("Unexpected http method: %s", ctx.Method())
 		ctx.Response.Header.Set("Allow", strings.Join(h.getListMethods(), ", "))

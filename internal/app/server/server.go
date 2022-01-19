@@ -59,14 +59,14 @@ func (s *Server) Start(config *internal.Config) error {
 
 	router := routing.New()
 
-	routerApi := router.Group("/api/")
+	routerApi := router.Group("/api")
 
 	repositoryFactory := repository_factory.NewRepositoryFactory(s.logger, s.connections)
 	factory := handler_factory.NewFactory(s.logger, repositoryFactory)
 	hs := factory.GetHandleUrls()
 
 	for apiUrl, h := range *hs {
-		h.Connect(routerApi.Any(apiUrl))
+		h.Connect(routerApi.Connect(apiUrl))
 	}
 	utilitsMiddleware := middleware.NewUtilitiesMiddleware(s.logger)
 	router.Use(utilitsMiddleware.UpgradeLogger().ServeHTTP, utilitsMiddleware.CheckPanic().ServeHTTP)

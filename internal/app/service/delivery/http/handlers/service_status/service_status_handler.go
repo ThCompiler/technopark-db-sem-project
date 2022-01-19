@@ -9,13 +9,13 @@ import (
 	bh "tech-db-forum/internal/pkg/handler"
 )
 
-type UserProfileHandler struct {
+type ServiceStatusHandler struct {
 	serviceRepository repository.Repository
 	bh.BaseHandler
 }
 
-func NewUserProfileHandler(log *logrus.Logger, rep repository.Repository) *UserProfileHandler {
-	h := &UserProfileHandler{
+func NewServiceStatusHandler(log *logrus.Logger, rep repository.Repository) *ServiceStatusHandler {
+	h := &ServiceStatusHandler{
 		BaseHandler:       *bh.NewBaseHandler(log),
 		serviceRepository: rep,
 	}
@@ -23,7 +23,7 @@ func NewUserProfileHandler(log *logrus.Logger, rep repository.Repository) *UserP
 	return h
 }
 
-func (h *UserProfileHandler) GET(ctx *routing.Context) error {
+func (h *ServiceStatusHandler) GET(ctx *routing.Context) error {
 	stat, err := h.serviceRepository.GetStat()
 	if err != nil {
 		h.UsecaseError(ctx, err, codesByErrorsGET)

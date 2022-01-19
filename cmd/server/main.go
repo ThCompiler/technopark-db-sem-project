@@ -6,6 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"tech-db-forum/internal"
+	"tech-db-forum/internal/app"
+	"tech-db-forum/internal/app/server"
 	"tech-db-forum/internal/pkg/utilits"
 )
 
@@ -74,7 +76,7 @@ func main() {
 		}
 	}(closeResource, logger)
 
-	/*db, closeResource := utilits.NewPostgresConnection(config.Repository.DataBaseUrl)
+	db, closeResource := utilits.NewPostgresConnection(config.Repository.DataBaseUrl)
 
 	defer func(closer func() error, log *logrus.Logger) {
 		err := closer()
@@ -82,19 +84,16 @@ func main() {
 			log.Fatal(err)
 		}
 	}(closeResource, logger)
-*/
-	/*server := main_server.New(&config,
+
+	serv := server.New(&config,
 		app.ExpectedConnections{
 			SqlConnection: db,
 		},
 		logger,
-	)*/
-	for {
+	)
 
-	}
-	/*if err = server.Start(&config); err != nil {
+	if err = serv.Start(&config); err != nil {
 		logger.Fatal(err)
 	}
 	logger.Info("Server was stopped")
-	*/
 }

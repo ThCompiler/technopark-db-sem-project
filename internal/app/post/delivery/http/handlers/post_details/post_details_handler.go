@@ -33,13 +33,14 @@ func NewPostDetailsHandler(log *logrus.Logger, rep repository.Repository, repTh 
 		userRepository:   repUs,
 		forumRepository:  repFr,
 	}
+	h.AddMethod(http.MethodGet, h.GET)
 	h.AddMethod(http.MethodPost, h.POST)
 	return h
 }
 
 func (h *PostDetailsHandler) GET(ctx *routing.Context) error {
 	id, status, err := h.GetInt64FromParam(ctx, "id")
-	if status == bh.EmptyQuery {
+	if err != nil {
 		h.Error(ctx, status, err)
 		return nil
 	}
@@ -55,7 +56,7 @@ func (h *PostDetailsHandler) GET(ctx *routing.Context) error {
 		h.UsecaseError(ctx, err, codesByErrorsGET)
 		return nil
 	}
-	response := http_delivery.GetPostResponse{Post: http_delivery.ToPostResponse(pst)}
+	response := http_delivery.GetPostResponse{Post: *http_delivery.ToPostResponse(pst)}
 
 	if err = h.selectRelatedValueForPost(pst, &response, &related); err != nil {
 		h.UsecaseError(ctx, err, codesByErrorsGET)
@@ -77,7 +78,7 @@ func (h *PostDetailsHandler) POST(ctx *routing.Context) error {
 	}
 
 	id, status, err := h.GetInt64FromParam(ctx, "id")
-	if status == bh.EmptyQuery {
+	if err != nil {
 		h.Error(ctx, status, err)
 		return nil
 	}

@@ -41,8 +41,8 @@ func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
 	return hf.HandlerFunc(func(ctx *routing.Context) error {
 		start := time.Now()
 		upgradeLogger := mw.log.BaseLog().WithFields(logrus.Fields{
-			"urls":        ctx.URI(),
-			"method":      ctx.Method(),
+			"urls":        ctx.URI().String(),
+			"method":      string(ctx.Method()),
 			"remote_addr": ctx.RemoteAddr(),
 			"work_time":   time.Since(start).Milliseconds(),
 			"req_id":      uuid.NewV4(),

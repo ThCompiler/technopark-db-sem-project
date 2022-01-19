@@ -14,8 +14,8 @@ type PostResponse struct {
 	post.Post
 }
 
-func ToPostResponse(pst *post.Post) PostResponse {
-	return PostResponse{
+func ToPostResponse(pst *post.Post) *PostResponse {
+	return &PostResponse{
 		Post: *pst,
 	}
 }
@@ -23,12 +23,12 @@ func ToPostResponse(pst *post.Post) PostResponse {
 //easyjson:json
 type PostsResponse []PostResponse
 
-func ToPostsResponse(psts []post.Post) PostsResponse {
+func ToPostsResponse(psts []post.Post) *PostsResponse {
 	res := PostsResponse{}
 	for _, pst := range psts {
-		res = append(res, ToPostResponse(&pst))
+		res = append(res, *ToPostResponse(&pst))
 	}
-	return res
+	return &res
 }
 
 //easyjson:json

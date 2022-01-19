@@ -181,7 +181,7 @@ func (r *ForumRepository) Create(frm *forum.Forum) (*forum.Forum, error) {
 	}
 
 	if isCorrect == 1 {
-		return frm, postgresql_utilits.NotFound
+		return frm, postgresql_utilits.Conflict
 	}
 
 	return frm, nil

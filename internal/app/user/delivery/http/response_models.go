@@ -12,8 +12,8 @@ type UserResponse struct {
 	Email    string `json:"email"`
 }
 
-func ToUserResponse(usr *user.User) UserResponse {
-	return UserResponse{
+func ToUserResponse(usr *user.User) *UserResponse {
+	return &UserResponse{
 		Nickname: usr.Nickname,
 		Fullname: usr.Fullname,
 		About:    usr.About,
@@ -24,10 +24,10 @@ func ToUserResponse(usr *user.User) UserResponse {
 //easyjson:json
 type UsersResponse []UserResponse
 
-func ToUsersResponse(usrs []user.User) UsersResponse {
+func ToUsersResponse(usrs []user.User) *UsersResponse {
 	res := UsersResponse{}
 	for _, usr := range usrs {
-		res = append(res, ToUserResponse(&usr))
+		res = append(res, *ToUserResponse(&usr))
 	}
-	return res
+	return &res
 }

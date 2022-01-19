@@ -43,7 +43,7 @@ func (h *Responder) Respond(ctx *routing.Context, code int, data easyjson.Marsha
 			}
 		}
 	}
-	if !wasErr {
+	if wasErr {
 		ctx.SetStatusCode(http.StatusInternalServerError)
 		return
 	}
