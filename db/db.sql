@@ -177,4 +177,47 @@ CREATE TRIGGER create_post_path
     FOR EACH ROW
 EXECUTE PROCEDURE update_post_past();
 
+CREATE EXTENSION pg_stat_statements;
 
+-- forum indexes --
+create index if not exists forum_slug_hash on forums using hash (slug);
+create index if not exists forum_user_hash on forums using hash (user_nickname);
+-- users_to_forums indexes --
+create index if not exists users_to_forums_all on users_to_forums (forum, nickname);
+-- users indexes --
+create index if not exists user_nickname_hash on users using hash (nickname);
+create index if not exists user_all on users (nickname, fullname, about, email);
+----------- post indexes -----------
+create index if not exists post_th_created on posts (thread, created, id); --test
+-- create index if not exists post_pathparent on post ((path[1])); -- немного лучше
+create index if not exists post_thread on posts (thread);
+create index if not exists post_sorting_pr_tree_desc on posts ((path[1]) desc, path, id);
+create index if not exists post_sorting_tree_desc on posts (path desc);
+create index if not exists post_sorting_tree_asc on posts (path asc, id);
+create index if not exists post_sorting_desc on posts (created desc, id);
+create index if not exists post_sorting_asc on posts (created asc, id);
+create index if not exists post_parent_sel on posts (thread, parent, (path[1]));
+-- create index if not exists post_path_id on post (id, (path[1])); -- без изменений
+-- CREATE INDEX IF NOT EXISTS post_thread_created_id ON posts (id, thread, created);
+-- CREATE INDEX IF NOT EXISTS post_path_1_path ON posts ((path[1]), path);
+-- create index if not exists post_thread_thread_id on post (thread, id); -- хуже
+-- create index if not exists post_thread_path_id on posts (thread, path, id);
+-- create index if not exists post_thread_parent_path on post (thread, parent,path); -- хуже
+
+-- create index if not exists post_forum_hash on post using hash (forum); -- не лучше не хуже
+-- create index if not exists post_author_hash on post using hash (author); дольше
+---------- vote indexes ----------
+create unique index if not exists votes_all on votes (nickname, thread_id, voice);
+create unique index if not exists votes on votes (nickname, thread_id);
+---------- thread indexes ---------
+create index if not exists thread_slug_hash on threads (slug) include (id);
+create index if not exists thread_user_hash on threads using hash (author);
+create index if not exists thread_forum on threads using hash (forum);
+create index if not exists thread_created on threads (created);
+
+create index if not exists thread_forum_created on threads (forum, created);
+
+
+
+VACUUM;
+VACUUM ANALYSE;

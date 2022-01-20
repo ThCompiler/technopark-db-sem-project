@@ -11,7 +11,7 @@ logs
 report.html
 tech-db-forum.dat.gz
 technopark-dbms-forum
-
+tech-db-forum.best.*
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
