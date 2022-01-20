@@ -193,7 +193,7 @@ func easyjson316682a0EncodeTechDbForumInternalAppPostDeliveryHttp1(out *jwriter.
 		out.RawString(prefix)
 		out.Int64(int64(in.Votes))
 	}
-	{
+	if in.Slug != "" {
 		const prefix string = ",\"slug\":"
 		out.RawString(prefix)
 		out.String(string(in.Slug))
@@ -323,7 +323,7 @@ func easyjson316682a0DecodeTechDbForumInternalAppPostDeliveryHttp3(in *jlexer.Le
 		case "message":
 			out.Message = string(in.String())
 		case "isEdited":
-			out.IsEdited = bool(in.Bool())
+			out.Is_Edited = bool(in.Bool())
 		case "forum":
 			out.Forum = string(in.String())
 		case "thread":
@@ -373,7 +373,7 @@ func easyjson316682a0EncodeTechDbForumInternalAppPostDeliveryHttp3(out *jwriter.
 	{
 		const prefix string = ",\"isEdited\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.IsEdited))
+		out.Bool(bool(in.Is_Edited))
 	}
 	{
 		const prefix string = ",\"forum\":"
@@ -436,13 +436,45 @@ func easyjson316682a0DecodeTechDbForumInternalAppPostDeliveryHttp4(in *jlexer.Le
 		}
 		switch key {
 		case "post":
-			(out.Post).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Post = nil
+			} else {
+				if out.Post == nil {
+					out.Post = new(PostResponse)
+				}
+				(*out.Post).UnmarshalEasyJSON(in)
+			}
 		case "author":
-			(out.Author).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Author = nil
+			} else {
+				if out.Author == nil {
+					out.Author = new(UserResponse)
+				}
+				(*out.Author).UnmarshalEasyJSON(in)
+			}
 		case "thread":
-			(out.Thread).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Thread = nil
+			} else {
+				if out.Thread == nil {
+					out.Thread = new(ThreadResponse)
+				}
+				(*out.Thread).UnmarshalEasyJSON(in)
+			}
 		case "forum":
-			(out.Forum).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Forum = nil
+			} else {
+				if out.Forum == nil {
+					out.Forum = new(ForumResponse)
+				}
+				(*out.Forum).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -464,22 +496,26 @@ func easyjson316682a0EncodeTechDbForumInternalAppPostDeliveryHttp4(out *jwriter.
 	{
 		const prefix string = ",\"post\":"
 		out.RawString(prefix[1:])
-		(in.Post).MarshalEasyJSON(out)
+		if in.Post == nil {
+			out.RawString("null")
+		} else {
+			(*in.Post).MarshalEasyJSON(out)
+		}
 	}
-	if true {
+	if in.Author != nil {
 		const prefix string = ",\"author\":"
 		out.RawString(prefix)
-		(in.Author).MarshalEasyJSON(out)
+		(*in.Author).MarshalEasyJSON(out)
 	}
-	if true {
+	if in.Thread != nil {
 		const prefix string = ",\"thread\":"
 		out.RawString(prefix)
-		(in.Thread).MarshalEasyJSON(out)
+		(*in.Thread).MarshalEasyJSON(out)
 	}
-	if true {
+	if in.Forum != nil {
 		const prefix string = ",\"forum\":"
 		out.RawString(prefix)
-		(in.Forum).MarshalEasyJSON(out)
+		(*in.Forum).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }

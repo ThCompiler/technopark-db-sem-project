@@ -1,8 +1,8 @@
 package service
 
 type Status struct {
-	User string `json:"user"`
-	Forum string `json:"forum"`
-	Thread string `json:"thread"`
-	Post string `json:"post"`
+	User int32 `json:"user"`
+	Forum int32 `json:"forum"`
+	Thread int32 `json:"thread"`
+	Post int64 `json:"post"`
 }

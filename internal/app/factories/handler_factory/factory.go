@@ -88,7 +88,7 @@ func (f *HandlerFactory) GetHandleUrls() *map[string]app.Handler {
 
 		//=============post==============//
 		"/post/<id:\\d+>/details":  hs[POST_DETAILS],
-		"/thread/<id:\\d+>/create": hs[POST_CREATE],
+		"/thread/<slug>/create": hs[POST_CREATE],
 
 		//=============forum=============//
 		"/forum/create":         hs[FORUM_CREATE],

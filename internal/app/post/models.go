@@ -7,7 +7,7 @@ type Post struct {
 	Parent   int64     `json:"parent"`
 	Author   string    `json:"author"`
 	Message  string    `json:"message"`
-	IsEdited bool      `json:"isEdited"`
+	Is_Edited bool      `json:"isEdited"`
 	Forum    string    `json:"forum"`
 	Thread   int64     `json:"thread"`
 	Created  time.Time `json:"created"`

@@ -21,17 +21,12 @@ build-docker:
 	docker build -t thecompiler .
 
 run:
-	docker run -d --memory 2G --log-opt max-size=5M --log-opt max-file=3 -p 5000:5000 --name thecompiler -t thecompiler
+	docker run  --memory 2G --log-opt max-size=5M --log-opt max-file=3 -p 5000:5000 -p 5432:5432 --name thecompiler -t thecompiler
 
 run-build: build-docker run
 
-stop:  # остановить сервер
-	docker-compose stop
-
-
 open-last-log:
 	cat $(LOG_DIR)/`ls -t $(LOG_DIR) | head -1 `
-
 
 clear-logs:
 	rm -rf $(LOG_DIR)/*.log

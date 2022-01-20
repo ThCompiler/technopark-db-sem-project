@@ -19,7 +19,7 @@ type ThreadCreateHandler struct {
 
 func NewThreadCreateHandler(log *logrus.Logger, rep repository.Repository) *ThreadCreateHandler {
 	h := &ThreadCreateHandler{
-		BaseHandler:    *bh.NewBaseHandler(log),
+		BaseHandler:      *bh.NewBaseHandler(log),
 		threadRepository: rep,
 	}
 
@@ -36,18 +36,23 @@ func (h *ThreadCreateHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	slug, status := h.GetStringFromQueries(ctx, "slug")
+	slug, status := h.GetStringFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
 		ctx.SetStatusCode(http.StatusBadRequest)
 		return nil
 	}
 
+	if req.Forum == "" {
+		req.Forum = slug
+	}
+
 	thr, err := h.threadRepository.Create(&thread.Thread{
-		Slug: slug,
-		Title: req.Title,
+		Slug:    req.Slug,
+		Forum:   req.Forum,
+		Title:   req.Title,
 		Message: req.Message,
 		Created: req.Created,
-		Author: req.Author,
+		Author:  req.Author,
 	})
 
 	if err == postgresql_utilits.Conflict {

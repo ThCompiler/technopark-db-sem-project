@@ -8,6 +8,9 @@
 logs
 # Test binary, built with `go test -c`
 *.test
+report.html
+tech-db-forum.dat.gz
+technopark-dbms-forum
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out

@@ -37,13 +37,13 @@ func easyjson316682a0DecodeTechDbForumInternalAppServiceDeliveryHttp(in *jlexer.
 		}
 		switch key {
 		case "user":
-			out.User = string(in.String())
+			out.User = int32(in.Int32())
 		case "forum":
-			out.Forum = string(in.String())
+			out.Forum = int32(in.Int32())
 		case "thread":
-			out.Thread = string(in.String())
+			out.Thread = int32(in.Int32())
 		case "post":
-			out.Post = string(in.String())
+			out.Post = int64(in.Int64())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -65,22 +65,22 @@ func easyjson316682a0EncodeTechDbForumInternalAppServiceDeliveryHttp(out *jwrite
 	{
 		const prefix string = ",\"user\":"
 		out.RawString(prefix[1:])
-		out.String(string(in.User))
+		out.Int32(int32(in.User))
 	}
 	{
 		const prefix string = ",\"forum\":"
 		out.RawString(prefix)
-		out.String(string(in.Forum))
+		out.Int32(int32(in.Forum))
 	}
 	{
 		const prefix string = ",\"thread\":"
 		out.RawString(prefix)
-		out.String(string(in.Thread))
+		out.Int32(int32(in.Thread))
 	}
 	{
 		const prefix string = ",\"post\":"
 		out.RawString(prefix)
-		out.String(string(in.Post))
+		out.Int64(int64(in.Post))
 	}
 	out.RawByte('}')
 }

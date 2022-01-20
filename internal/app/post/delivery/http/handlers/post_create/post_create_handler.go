@@ -34,7 +34,7 @@ func (h *PostCreateHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	threadPk, status := h.GetThreadSlugFromParam(ctx, "id")
+	threadPk, status := h.GetThreadSlugFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
 		ctx.SetStatusCode(http.StatusBadRequest)
 		return nil

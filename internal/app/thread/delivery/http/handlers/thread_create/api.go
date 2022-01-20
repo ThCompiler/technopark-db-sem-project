@@ -14,4 +14,6 @@ var codesByErrorsPOST = delivery.CodeMap{
 		http.StatusInternalServerError, handler_errors.BDError, logrus.ErrorLevel},
 	repository.NotFoundForumOrAuthor: {
 		http.StatusNotFound, repository.NotFoundForumOrAuthor, logrus.WarnLevel},
+	postgresql_utilits.Conflict: {
+		http.StatusConflict, handler_errors.ThreadNotFound, logrus.WarnLevel},
 }

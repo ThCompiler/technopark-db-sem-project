@@ -197,14 +197,20 @@ func easyjson7df0efccEncodeTechDbForumInternalAppPostDeliveryHttp2(out *jwriter.
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if in.Parent != 0 {
 		const prefix string = ",\"parent\":"
+		first = false
 		out.RawString(prefix[1:])
 		out.Int64(int64(in.Parent))
 	}
 	{
 		const prefix string = ",\"author\":"
-		out.RawString(prefix)
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Author))
 	}
 	if in.Message != "" {

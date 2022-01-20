@@ -102,7 +102,7 @@ func easyjson316682a0EncodeTechDbForumInternalAppThreadDeliveryHttp(out *jwriter
 		out.RawString(prefix)
 		out.Int64(int64(in.Votes))
 	}
-	{
+	if in.Slug != "" {
 		const prefix string = ",\"slug\":"
 		out.RawString(prefix)
 		out.String(string(in.Slug))
@@ -232,7 +232,7 @@ func easyjson316682a0DecodeTechDbForumInternalAppThreadDeliveryHttp2(in *jlexer.
 		case "message":
 			out.Message = string(in.String())
 		case "isEdited":
-			out.IsEdited = bool(in.Bool())
+			out.Is_Edited = bool(in.Bool())
 		case "forum":
 			out.Forum = string(in.String())
 		case "thread":
@@ -282,7 +282,7 @@ func easyjson316682a0EncodeTechDbForumInternalAppThreadDeliveryHttp2(out *jwrite
 	{
 		const prefix string = ",\"isEdited\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.IsEdited))
+		out.Bool(bool(in.Is_Edited))
 	}
 	{
 		const prefix string = ",\"forum\":"

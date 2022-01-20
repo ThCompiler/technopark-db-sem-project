@@ -24,7 +24,7 @@ EXPOSE 5432
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 USER root
 
-WORKDIR /usr/src/build
+WORKDIR /home/src/build
 
 COPY ./db ./db
 COPY ./configs ./configs

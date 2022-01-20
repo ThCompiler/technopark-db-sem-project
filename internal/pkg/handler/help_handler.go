@@ -6,6 +6,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"net/http"
 	"strconv"
+	"strings"
 	"tech-db-forum/internal/app"
 	"tech-db-forum/internal/app/thread"
 	"tech-db-forum/internal/pkg/handler/handler_errors"
@@ -120,9 +121,9 @@ func (h *HelpHandlers) GetArrayStringFromQueries(ctx *routing.Context, name stri
 		return nil, EmptyQuery
 	}
 
-	res := make([]string, len(values))
-	for id, value := range values {
-		res[id] = string(value)
+	var res []string
+	for _, value := range values {
+		res = append(res, strings.Split(string(value), ",")...)
 	}
 	return res, app.InvalidInt
 }

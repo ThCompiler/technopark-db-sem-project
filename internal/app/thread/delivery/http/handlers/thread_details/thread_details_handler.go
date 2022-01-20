@@ -72,6 +72,6 @@ func (h *ThreadDetailsHandler) POST(ctx *routing.Context) error {
 	}
 
 	h.Log(ctx).Debugf("update post %v", thr)
-	h.Respond(ctx, http.StatusCreated, http_delivery.ToThreadResponse(thr))
+	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadResponse(thr))
 	return nil
 }

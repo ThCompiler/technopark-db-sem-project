@@ -21,5 +21,7 @@ type ThreadCreateRequest struct {
 	Title   string    `json:"title"`
 	Author  string    `json:"author"`
 	Message string    `json:"message,omitempty"`
+	Forum   string    `json:"forum,omitempty"`
+	Slug    string    `json:"slug,omitempty"`
 	Created time.Time `json:"created,omitempty"`
 }

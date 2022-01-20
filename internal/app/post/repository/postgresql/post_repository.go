@@ -16,23 +16,25 @@ import (
 
 const (
 	updateQuery = `
-					UPDATE posts SET message = $1, is_edited = true WHERE id = $2 
+					UPDATE posts SET message = $1, is_edited = message != $1 WHERE id = $2 
 					RETURNING parent, author, is_edited, forum, thread, created
 					`
 
 	updateNotEditQuery = `
-					UPDATE posts SET is_edited = false WHERE id = $2 
+					UPDATE posts SET is_edited = false WHERE id = $1
 					RETURNING parent, author, message, is_edited, forum, thread, created
 					`
 	getQuery = "SELECT parent, author, message, is_edited, forum, thread, created FROM posts WHERE id = $1"
 
-	checkParentQuery = "SELECT COUNT(id) FROM posts WHERE id IN (?)"
+	checkParentQuery = "SELECT COUNT(id) FROM posts WHERE id in (?)"
 
 	getThreadIdQuery  = "SELECT id FROM threads WHERE slug = $1"
 	getForumSlugQuery = "SELECT forum FROM threads WHERE id = $1"
 
+	checkThreadQuery = "SELECT id FROM threads WHERE id = $1"
+
 	createQuery    = `INSERT INTO posts (parent, author, message, forum, thread, created) VALUES `
-	createQueryEnd = `RETURNING id, parent, author, message, is_edited, forum, thread ,created`
+	createQueryEnd = ` RETURNING id, parent, author, message, is_edited, forum, thread ,created`
 )
 
 type PostRepository struct {
@@ -45,13 +47,19 @@ func NewPostRepository(store *sqlx.DB) *PostRepository {
 	}
 }
 
-func (r *PostRepository) checkParent(parent []int64) error {
+func (r *PostRepository) checkParent(parent []int64, threadId int64) error {
+	if len(parent) == 0 {
+		return nil
+	}
+
 	query, args, err := sqlx.In(checkParentQuery, parent)
 	if err != nil {
 		return postgresql_utilits.NewDBError(err)
 	}
+	query += " AND thread = ?"
 	query = r.store.Rebind(query)
 	var countParent int64
+	args = append(args, threadId)
 	if err = r.store.Get(&countParent, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return repository.NotFoundPostParent
@@ -77,7 +85,25 @@ func (r *PostRepository) getForumSlug(threadId int64) (string, error) {
 	return res, nil
 }
 
+func (r *PostRepository) checkThread(threadId int64) error {
+	res := ""
+	if err := r.store.Get(&res, checkThreadQuery, threadId); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return repository.NotFoundForumSlugOrUserOrThread
+		}
+		return postgresql_utilits.NewDBError(err)
+	}
+	return nil
+}
+
 func (r *PostRepository) Create(posts []post.Post, threadId int64) ([]post.Post, error) {
+	if len(posts) == 0 {
+		if err := r.checkThread(threadId); err != nil {
+			return nil, err
+		}
+		return posts, nil
+	}
+
 	var argsString []string
 	var args []interface{}
 
@@ -87,7 +113,8 @@ func (r *PostRepository) Create(posts []post.Post, threadId int64) ([]post.Post,
 	}
 
 	created := time.Now()
-	var parent []int64
+	parent := map[int64]bool{}
+
 	for _, pst := range posts {
 		argsString = append(argsString, "(?, ?, ?, ?, ?, ?)")
 		pst.Created = created
@@ -101,10 +128,19 @@ func (r *PostRepository) Create(posts []post.Post, threadId int64) ([]post.Post,
 		args = append(args, pst.Thread)
 		args = append(args, pst.Created)
 
-		parent = append(parent, pst.Parent)
+		if pst.Parent != 0 {
+			parent[pst.Parent] = true
+		}
 	}
 
-	if err := r.checkParent(parent); err != nil {
+	arrayParent := make([]int64, len(parent))
+	id := 0
+	for key, _ := range parent {
+		arrayParent[id] = key
+		id++
+	}
+
+	if err := r.checkParent(arrayParent, threadId); err != nil {
 		return nil, err
 	}
 
@@ -112,6 +148,7 @@ func (r *PostRepository) Create(posts []post.Post, threadId int64) ([]post.Post,
 		strings.Join(argsString, ", "), createQueryEnd)
 	query = r.store.Rebind(query)
 
+	posts = []post.Post{}
 	if err := r.store.Select(&posts, query, args...); err != nil {
 		return nil, parsePQError(err.(*pq.Error))
 	}
@@ -134,7 +171,7 @@ func (r *PostRepository) Get(id int64) (*post.Post, error) {
 			&res.Parent,
 			&res.Author,
 			&res.Message,
-			&res.IsEdited,
+			&res.Is_Edited,
 			&res.Forum,
 			&res.Thread,
 			&res.Created,
@@ -152,7 +189,7 @@ func (r *PostRepository) Update(pst *post.Post) (*post.Post, error) {
 		Scan(
 			&pst.Parent,
 			&pst.Author,
-			&pst.IsEdited,
+			&pst.Is_Edited,
 			&pst.Forum,
 			&pst.Thread,
 			&pst.Created,
@@ -172,7 +209,7 @@ func (r *PostRepository) SetNotEdit(id int64) (*post.Post, error) {
 			&pst.Parent,
 			&pst.Author,
 			&pst.Message,
-			&pst.IsEdited,
+			&pst.Is_Edited,
 			&pst.Forum,
 			&pst.Thread,
 			&pst.Created,

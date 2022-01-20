@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+	"tech-db-forum/internal/app"
 	"tech-db-forum/internal/app/thread"
 	"tech-db-forum/internal/app/thread/delivery/http"
 	"tech-db-forum/internal/app/thread/repository"
@@ -41,9 +42,13 @@ func (h *ThreadPostsHandler) GET(ctx *routing.Context) error {
 	}
 
 	since, err := strconv.ParseInt(pag.Since, 10, 64)
-	if err != nil {
+	if err != nil && pag.Since != "" {
 		h.Error(ctx, status, handler_errors.InvalidQueries)
 		return nil
+	}
+
+	if pag.Since == "" {
+		since = app.InvalidInt
 	}
 
 	sortType, status := h.GetStringFromQueries(ctx, "sort")

@@ -11,7 +11,7 @@ type PostUpdateRequest struct {
 
 //easyjson:json
 type PostCreateRequest struct {
-	Parent  int64  `json:"parent"`
+	Parent  int64  `json:"parent,omitempty"`
 	Author  string `json:"author"`
 	Message string `json:"message,omitempty"`
 }

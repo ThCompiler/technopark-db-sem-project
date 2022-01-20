@@ -11,8 +11,12 @@ import (
 
 const (
 	updateUser = `
-					UPDATE users SET fullname = $1, about = $2, email = $3 WHERE nickname = $4
-						RETURNING fullname, about, email`
+					UPDATE users SET 
+					    fullname = COALESCE(NULLIF(TRIM($1), ''), fullname),
+					    about = COALESCE(NULLIF(TRIM($2), ''), about),
+					    email = COALESCE(NULLIF(TRIM($3), ''), email) 
+					WHERE nickname = $4
+					RETURNING nickname, fullname, about, email`
 
 	getQuery = "SELECT nickname, fullname, about, email FROM users WHERE nickname = $1"
 
@@ -86,6 +90,7 @@ func (r *UserRepository) Get(nickname string) (*user.User, error) {
 	res := &user.User{Nickname: nickname}
 	if err := r.store.QueryRowx(getQuery, res.Nickname).
 		Scan(
+			&res.Nickname,
 			&res.Fullname,
 			&res.About,
 			&res.Email,

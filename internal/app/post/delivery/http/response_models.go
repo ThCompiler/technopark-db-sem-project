@@ -66,8 +66,8 @@ func ToThreadResponse(thr *thread.Thread) *ThreadResponse {
 
 //easyjson:json
 type GetPostResponse struct {
-	Post   PostResponse   `json:"post"`
-	Author UserResponse   `json:"author,omitempty"`
-	Thread ThreadResponse `json:"thread,omitempty"`
-	Forum  ForumResponse  `json:"forum,omitempty"`
+	Post   *PostResponse   `json:"post"`
+	Author *UserResponse   `json:"author,omitempty"`
+	Thread *ThreadResponse `json:"thread,omitempty"`
+	Forum  *ForumResponse  `json:"forum,omitempty"`
 }

@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS threads
     forum   citext                                 not null references forums (slug),
     message text                                   not null,
     votes   integer     default 0                  not null,
-    slug    citext                                 not null unique,
+    slug    citext                                 unique,
     created timestamptz default now()::timestamptz not null
 );
 

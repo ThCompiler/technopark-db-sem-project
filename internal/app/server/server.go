@@ -5,12 +5,11 @@ import (
 	routing "github.com/qiangxue/fasthttp-routing"
 	"github.com/valyala/fasthttp"
 	"tech-db-forum/internal"
-
-	"tech-db-forum/internal/app/factories/handler_factory"
-	"tech-db-forum/internal/app/factories/repository_factory"
 	"tech-db-forum/internal/app/middleware"
 
 	"tech-db-forum/internal/app"
+	"tech-db-forum/internal/app/factories/handler_factory"
+	"tech-db-forum/internal/app/factories/repository_factory"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -65,11 +64,13 @@ func (s *Server) Start(config *internal.Config) error {
 	factory := handler_factory.NewFactory(s.logger, repositoryFactory)
 	hs := factory.GetHandleUrls()
 
+	utilitsMiddleware := middleware.NewUtilitiesMiddleware(s.logger)
+	routerApi.Use(utilitsMiddleware.UpgradeLogger().ServeHTTP, utilitsMiddleware.CheckPanic().ServeHTTP)
+
 	for apiUrl, h := range *hs {
 		h.Connect(routerApi.Connect(apiUrl))
 	}
-	utilitsMiddleware := middleware.NewUtilitiesMiddleware(s.logger)
-	router.Use(utilitsMiddleware.UpgradeLogger().ServeHTTP, utilitsMiddleware.CheckPanic().ServeHTTP)
+
 	s.logger.Info("start no http server")
 	return fasthttp.ListenAndServe(config.BindAddr, router.HandleRequest)
 }

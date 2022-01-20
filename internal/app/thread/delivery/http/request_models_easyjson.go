@@ -196,6 +196,10 @@ func easyjson7df0efccDecodeTechDbForumInternalAppThreadDeliveryHttp2(in *jlexer.
 			out.Author = string(in.String())
 		case "message":
 			out.Message = string(in.String())
+		case "forum":
+			out.Forum = string(in.String())
+		case "slug":
+			out.Slug = string(in.String())
 		case "created":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.Created).UnmarshalJSON(data))
@@ -232,6 +236,16 @@ func easyjson7df0efccEncodeTechDbForumInternalAppThreadDeliveryHttp2(out *jwrite
 		const prefix string = ",\"message\":"
 		out.RawString(prefix)
 		out.String(string(in.Message))
+	}
+	if in.Forum != "" {
+		const prefix string = ",\"forum\":"
+		out.RawString(prefix)
+		out.String(string(in.Forum))
+	}
+	if in.Slug != "" {
+		const prefix string = ",\"slug\":"
+		out.RawString(prefix)
+		out.String(string(in.Slug))
 	}
 	if true {
 		const prefix string = ",\"created\":"

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	codeIncorrectFKey = "42830"
+	codeIncorrectFKey = "23503"
 )
 
 func parsePQError(err *pq.Error) error {

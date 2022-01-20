@@ -41,7 +41,7 @@ type Post struct {
 	Parent   int64     `json:"parent"`
 	Author   string    `json:"author"`
 	Message  string    `json:"message"`
-	IsEdited bool      `json:"isEdited"`
+	Is_Edited bool      `json:"isEdited"`
 	Forum    string    `json:"forum"`
 	Thread   int64     `json:"thread"`
 	Created  time.Time `json:"created"`
@@ -54,7 +54,7 @@ type Thread struct {
 	Forum   string    `json:"forum"`
 	Message string    `json:"message"`
 	Votes   int64     `json:"votes"`
-	Slug    string    `json:"slug"`
+	Slug    string    `json:"slug,omitempty"`
 	Created time.Time `json:"created"`
 }
 
@@ -64,12 +64,12 @@ type ThreadPK struct {
 }
 
 func (thr *ThreadPK) SetId(id int64) {
-	*thr.id = id
+	thr.id = &id
 	thr.slug = nil
 }
 
 func (thr *ThreadPK) SetSlug(slug string) {
-	*thr.slug = slug
+	thr.slug = &slug
 	thr.id = nil
 }
 

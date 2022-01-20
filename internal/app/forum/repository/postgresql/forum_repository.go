@@ -3,9 +3,9 @@ package postgresql
 import (
 	"database/sql"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"tech-db-forum/internal/app/forum"
+	"tech-db-forum/internal/app/forum/repository"
 	postgresql_utilits "tech-db-forum/internal/pkg/utilits/postgresql"
 )
 
@@ -62,7 +62,9 @@ const (
 					LIMIT $2
 					`
 
-	getQuery = "SELECT title, user_nickname, posts, threads FROM forums WHERE slug = $1"
+	getQuery = "SELECT slug, title, user_nickname, posts, threads FROM forums WHERE slug = $1"
+
+	checkSlugQuery = "SELECT slug FROM forums WHERE slug = $1"
 
 	createQuery = `    
 						WITH sel AS (
@@ -71,8 +73,9 @@ const (
 							WHERE slug = $1
 						), ins as (
 							INSERT INTO forums (slug, title, user_nickname)
-								SELECT $1, $2, $3
-								WHERE not exists (select 1 from sel)
+								SELECT $1, $2, nickname
+								FROM users
+								WHERE not exists (select 1 from sel) and nickname = $3
 							RETURNING slug, title, user_nickname, posts, threads
 						)
 						SELECT slug, title, user_nickname, posts, threads, 0
@@ -93,7 +96,25 @@ func NewForumRepository(store *sqlx.DB) *ForumRepository {
 	}
 }
 
+func (r *ForumRepository) checkSlug(slug string) error {
+	if err := r.store.QueryRowx(checkSlugQuery, slug).
+		Scan(
+			&slug,
+		); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return postgresql_utilits.NotFound
+		}
+		return postgresql_utilits.NewDBError(err)
+	}
+	return nil
+}
+
+
 func (r *ForumRepository) GetThreads(slug string, pag *forum.PaginationThread) ([]forum.Thread, error) {
+	if err := r.checkSlug(slug); err != nil {
+		return nil, err
+	}
+
 	args := []interface{}{slug}
 	query := getThreadsQueryASCWithoutWhere
 
@@ -112,17 +133,27 @@ func (r *ForumRepository) GetThreads(slug string, pag *forum.PaginationThread) (
 	}
 	args = append(args, pag.Limit)
 
-	var res []forum.Thread
-	if err := r.store.Select(&res, query, args...); err != nil {
+	var tmp []Thread
+	if err := r.store.Select(&tmp, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, postgresql_utilits.NotFound
 		}
 		return nil, postgresql_utilits.NewDBError(err)
 	}
+
+	res := make([]forum.Thread, len(tmp))
+	for i, t := range tmp {
+		res[i] = *t.ConvertToBaseThread()
+	}
+
 	return res, nil
 }
 
 func (r *ForumRepository) GetUsers(slug string, pag *forum.PaginationUser) ([]forum.User, error) {
+	if err := r.checkSlug(slug); err != nil {
+		return nil, err
+	}
+
 	query := getUsersQueryASC
 	args := []interface{}{slug}
 	if pag.Desc {
@@ -132,6 +163,8 @@ func (r *ForumRepository) GetUsers(slug string, pag *forum.PaginationUser) ([]fo
 		} else {
 			query = getUsersQueryDESCWithoutWhere
 		}
+	} else {
+		args = append(args, pag.Since)
 	}
 	args = append(args, pag.Limit)
 
@@ -149,6 +182,7 @@ func (r *ForumRepository) Get(slug string) (*forum.Forum, error) {
 	res := &forum.Forum{Slug: slug}
 	if err := r.store.QueryRowx(getQuery, slug).
 		Scan(
+			&res.Slug,
 			&res.Title,
 			&res.User,
 			&res.Posts,
@@ -177,7 +211,10 @@ func (r *ForumRepository) Create(frm *forum.Forum) (*forum.Forum, error) {
 			&frm.Threads,
 			&isCorrect,
 		); err != nil {
-		return nil, parsePQError(err.(*pq.Error))
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, repository.UserNotFound
+		}
+		return nil, postgresql_utilits.NewDBError(err)
 	}
 
 	if isCorrect == 1 {
