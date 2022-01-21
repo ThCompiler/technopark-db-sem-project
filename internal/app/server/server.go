@@ -5,11 +5,10 @@ import (
 	routing "github.com/qiangxue/fasthttp-routing"
 	"github.com/valyala/fasthttp"
 	"tech-db-forum/internal"
-	"tech-db-forum/internal/app/middleware"
-
 	"tech-db-forum/internal/app"
 	"tech-db-forum/internal/app/factories/handler_factory"
 	"tech-db-forum/internal/app/factories/repository_factory"
+	"tech-db-forum/internal/app/middleware"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -57,6 +56,7 @@ func (s *Server) Start(config *internal.Config) error {
 	}
 
 	router := routing.New()
+	//router.Get("/debug/pprof/<profile>", handler_interfaces.FastHTTPFunc(pprofhandler.PprofHandler).ServeHTTP)
 
 	routerApi := router.Group("/api")
 

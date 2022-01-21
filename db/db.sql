@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS citext;
 
-CREATE TABLE IF NOT EXISTS users
+CREATE UNLOGGED TABLE IF NOT EXISTS users
 (
     nickname citext not null unique primary key,
     fullname text   not null,
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users
     email    citext not null unique
 );
 
-CREATE TABLE IF NOT EXISTS forums
+CREATE UNLOGGED TABLE IF NOT EXISTS forums
 (
     title         text              not null,
     user_nickname citext            not null references users (nickname),
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS forums
 );
 
 
-CREATE TABLE IF NOT EXISTS threads
+CREATE UNLOGGED TABLE IF NOT EXISTS threads
 (
     id      bigserial                              not null primary key,
     title   text                                   not null,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS threads
     created timestamptz default now()::timestamptz not null
 );
 
-CREATE TABLE IF NOT EXISTS posts
+CREATE UNLOGGED TABLE IF NOT EXISTS posts
 (
     id        bigserial                               not null primary key,
     parent    integer     default 0                   not null,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS posts
     path      bigint[]    default ARRAY []::integer[] not null
 );
 
-CREATE TABLE IF NOT EXISTS votes
+CREATE UNLOGGED TABLE IF NOT EXISTS votes
 (
     nickname  citext not null references users (nickname),
     thread_id bigint not null references threads (id),
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS votes
     unique (nickname, thread_id)
 );
 
-CREATE TABLE IF NOT EXISTS users_to_forums
+CREATE UNLOGGED TABLE IF NOT EXISTS users_to_forums
 (
     nickname citext not null references users (nickname),
     fullname citext not null,
@@ -190,14 +190,15 @@ create index if not exists thread_user_hash on threads using hash (author);
 create index if not exists thread_slug_hash on threads using hash (slug);
 create index if not exists thread_forum on threads using hash (forum);
 create index if not exists thread_forum_created on threads (forum, created);
-
+create index if not exists thread_forum_created_desc on threads (forum, created desc);
 -- forum indexes --
 
-create index if not exists forum_slug_hash on forums using hash (slug);
+--create index if not exists forum_slug_hash on forums using hash (slug);
 
 -- users_to_forums indexes --
 
 create index if not exists users_to_forums_all on users_to_forums (forum, nickname);
+create index if not exists users_to_forums_all_desc on users_to_forums (forum, nickname DESC);
 
 -- users indexes --
 

@@ -118,11 +118,41 @@ func (r *ThreadRepository) getPostsFLat(id int64, pag *thread.PaginationPost) ([
 		args = append(args, pag.Since)
 	}
 
-	var res []thread.Post
-	if err := r.store.Select(&res, query, args...); err != nil {
+
+	rows, err := r.store.Queryx(query, args...)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, postgresql_utilits.NotFound
 		}
+		return nil, postgresql_utilits.NewDBError(err)
+	}
+
+	var tmp thread.Post
+	res := make([]thread.Post, pag.Limit)
+	i := 0
+	for rows.Next() {
+		if err = rows.Scan(
+			&tmp.Id,
+			&tmp.Parent,
+			&tmp.Author,
+			&tmp.Message,
+			&tmp.Is_Edited,
+			&tmp.Forum,
+			&tmp.Thread,
+			&tmp.Created,
+		); err != nil {
+			_ = rows.Close()
+			return nil, postgresql_utilits.NewDBError(err)
+		}
+		res[i] = tmp
+		i++
+	}
+
+	if i != len(res) {
+		res = res[:i]
+	}
+
+	if err = rows.Err(); err != nil {
 		return nil, postgresql_utilits.NewDBError(err)
 	}
 
@@ -146,11 +176,39 @@ func (r *ThreadRepository) getPostsThree(id int64, pag *thread.PaginationPost) (
 		}
 	}
 
-	var res []thread.Post
-	if err := r.store.Select(&res, query, args...); err != nil {
+
+	rows, err := r.store.Queryx(query, args...)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, postgresql_utilits.NotFound
 		}
+		return nil, postgresql_utilits.NewDBError(err)
+	}
+
+	var tmp thread.Post
+	res := make([]thread.Post, pag.Limit)
+	i := 0
+	for rows.Next() {
+		if err = rows.Scan(
+			&tmp.Id,
+			&tmp.Parent,
+			&tmp.Author,
+			&tmp.Message,
+			&tmp.Is_Edited,
+			&tmp.Forum,
+			&tmp.Thread,
+			&tmp.Created,
+		); err != nil {
+			_ = rows.Close()
+			return nil, postgresql_utilits.NewDBError(err)
+		}
+		res[i] = tmp
+		i++
+	}
+	if i != len(res) {
+		res = res[:i]
+	}
+	if err = rows.Err(); err != nil {
 		return nil, postgresql_utilits.NewDBError(err)
 	}
 
@@ -174,11 +232,34 @@ func (r *ThreadRepository) getPostsParentTree(id int64, pag *thread.PaginationPo
 		}
 	}
 
-	var res []thread.Post
-	if err := r.store.Select(&res, query, args...); err != nil {
+	rows, err := r.store.Queryx(query, args...)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, postgresql_utilits.NotFound
 		}
+		return nil, postgresql_utilits.NewDBError(err)
+	}
+
+	var tmp thread.Post
+	var res []thread.Post
+	for rows.Next() {
+		if err = rows.Scan(
+			&tmp.Id,
+			&tmp.Parent,
+			&tmp.Author,
+			&tmp.Message,
+			&tmp.Is_Edited,
+			&tmp.Forum,
+			&tmp.Thread,
+			&tmp.Created,
+		); err != nil {
+			_ = rows.Close()
+			return nil, postgresql_utilits.NewDBError(err)
+		}
+		res = append(res, tmp)
+	}
+
+	if err = rows.Err(); err != nil {
 		return nil, postgresql_utilits.NewDBError(err)
 	}
 

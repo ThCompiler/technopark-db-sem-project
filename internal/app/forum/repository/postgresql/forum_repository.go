@@ -106,7 +106,6 @@ func (r *ForumRepository) checkSlug(slug string) error {
 	return nil
 }
 
-
 func (r *ForumRepository) GetThreads(slug string, pag *forum.PaginationThread) ([]forum.Thread, error) {
 	if err := r.checkSlug(slug); err != nil {
 		return nil, err
@@ -130,17 +129,42 @@ func (r *ForumRepository) GetThreads(slug string, pag *forum.PaginationThread) (
 	}
 	args = append(args, pag.Limit)
 
-	var tmp []Thread
-	if err := r.store.Select(&tmp, query, args...); err != nil {
+	rows, err := r.store.Queryx(query, args...)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, postgresql_utilits.NotFound
 		}
 		return nil, postgresql_utilits.NewDBError(err)
 	}
 
-	res := make([]forum.Thread, len(tmp))
-	for i, t := range tmp {
-		res[i] = *t.ConvertToBaseThread()
+	var tmp Thread
+	res := make([]forum.Thread, pag.Limit)
+	id := 0
+	for rows.Next() {
+		if err = rows.Scan(
+			&tmp.Id,
+			&tmp.Title,
+			&tmp.Author,
+			&tmp.Forum,
+			&tmp.Message,
+			&tmp.Votes,
+			&tmp.Slug,
+			&tmp.Created,
+		); err != nil {
+			_ = rows.Close()
+			return nil, postgresql_utilits.NewDBError(err)
+		}
+		res = append(res, *tmp.ConvertToBaseThread())
+		res[id] = *tmp.ConvertToBaseThread()
+		id++
+	}
+
+	if id != len(res) {
+		res = res[:id]
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, postgresql_utilits.NewDBError(err)
 	}
 
 	return res, nil
@@ -165,13 +189,39 @@ func (r *ForumRepository) GetUsers(slug string, pag *forum.PaginationUser) ([]fo
 	}
 	args = append(args, pag.Limit)
 
-	var res []forum.User
-	if err := r.store.Select(&res, query, args...); err != nil {
+	rows, err := r.store.Queryx(query, args...)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, postgresql_utilits.NotFound
 		}
 		return nil, postgresql_utilits.NewDBError(err)
 	}
+
+	var tmp forum.User
+	res := make([]forum.User, pag.Limit)
+	id := 0
+	for rows.Next() {
+		if err = rows.Scan(
+			&tmp.Nickname,
+			&tmp.Fullname,
+			&tmp.About,
+			&tmp.Email,
+		); err != nil {
+			_ = rows.Close()
+			return nil, postgresql_utilits.NewDBError(err)
+		}
+		res[id] = tmp
+		id++
+	}
+
+	if id != len(res) {
+		res = res[:id]
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, postgresql_utilits.NewDBError(err)
+	}
+
 	return res, nil
 }
 

@@ -60,7 +60,7 @@ func (r *PostRepository) checkParent(parent []int64, threadId int64) error {
 	query = r.store.Rebind(query)
 	var countParent int64
 	args = append(args, threadId)
-	if err = r.store.Get(&countParent, query, args...); err != nil {
+	if err = r.store.QueryRowx(query, args...).Scan(&countParent); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return repository.NotFoundPostParent
 		}
@@ -76,7 +76,7 @@ func (r *PostRepository) checkParent(parent []int64, threadId int64) error {
 
 func (r *PostRepository) getForumSlug(threadId int64) (string, error) {
 	res := ""
-	if err := r.store.Get(&res, getForumSlugQuery, threadId); err != nil {
+	if err := r.store.QueryRowx(getForumSlugQuery, threadId).Scan(&res); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", repository.NotFoundForumSlugOrUserOrThread
 		}
@@ -87,7 +87,7 @@ func (r *PostRepository) getForumSlug(threadId int64) (string, error) {
 
 func (r *PostRepository) checkThread(threadId int64) error {
 	res := ""
-	if err := r.store.Get(&res, checkThreadQuery, threadId); err != nil {
+	if err := r.store.QueryRowx(checkThreadQuery, threadId).Scan(&res); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return repository.NotFoundForumSlugOrUserOrThread
 		}
@@ -148,9 +148,33 @@ func (r *PostRepository) Create(posts []post.Post, threadId int64) ([]post.Post,
 		strings.Join(argsString, ", "), createQueryEnd)
 	query = r.store.Rebind(query)
 
-	posts = []post.Post{}
-	if err := r.store.Select(&posts, query, args...); err != nil {
+	rows, err := r.store.Queryx(query, args...)
+	if err != nil {
 		return nil, parsePQError(err.(*pq.Error))
+	}
+
+	var tmp post.Post
+	i := 0
+	for rows.Next() {
+		if err = rows.Scan(
+			&tmp.Id,
+			&tmp.Parent,
+			&tmp.Author,
+			&tmp.Message,
+			&tmp.Is_Edited,
+			&tmp.Forum,
+			&tmp.Thread,
+			&tmp.Created,
+		); err != nil {
+			_ = rows.Close()
+			return nil, postgresql_utilits.NewDBError(err)
+		}
+		posts[i] = tmp
+		i++
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, postgresql_utilits.NewDBError(err)
 	}
 
 	return posts, nil
@@ -158,7 +182,7 @@ func (r *PostRepository) Create(posts []post.Post, threadId int64) ([]post.Post,
 
 func (r *PostRepository) GetThreadId(slug string) (int64, error) {
 	res := int64(0)
-	if err := r.store.Get(&res, getThreadIdQuery, slug); err != nil {
+	if err := r.store.QueryRowx(getThreadIdQuery, slug).Scan(&res); err != nil {
 		return app.InvalidInt, postgresql_utilits.NewDBError(err)
 	}
 	return res, nil
