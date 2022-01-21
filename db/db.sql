@@ -206,7 +206,6 @@ create index if not exists users_to_forums_all_desc on users_to_forums (forum, n
 
 create index if not exists user_nickname_hash on users using hash (nickname);
 create index if not exists user_email_hash on users using hash (email);
-create index if not exists user_all on users (nickname, fullname, about, email);
 
 -- post indexes --
 
@@ -220,6 +219,3 @@ create index if not exists post_id_conc_path on posts (id, (path[1]));
 create index if not exists post_id_path on posts (id, path);
 create index if not exists post_parent_sel on posts (thread, id, (path[1])) WHERE parent = 0;
 create index if not exists post_author_hash on posts using hash (author);
-
-VACUUM;
-VACUUM ANALYSE;
