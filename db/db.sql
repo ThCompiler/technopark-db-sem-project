@@ -197,13 +197,15 @@ create index if not exists thread_forum_created_desc on threads (forum, created 
 
 -- users_to_forums indexes --
 
+create index if not exists users_to_forums_hash_forum on users_to_forums using hash (forum);
+create index if not exists users_to_forums_hash_nickname on users_to_forums using hash (nickname);
 create index if not exists users_to_forums_all on users_to_forums (forum, nickname);
 create index if not exists users_to_forums_all_desc on users_to_forums (forum, nickname DESC);
 
 -- users indexes --
 
 create index if not exists user_nickname_hash on users using hash (nickname);
-create index if not exists user_nickname_hash on users using hash (email);
+create index if not exists user_email_hash on users using hash (email);
 create index if not exists user_all on users (nickname, fullname, about, email);
 
 -- post indexes --
@@ -216,7 +218,7 @@ create index if not exists post_thread_id on posts (thread, id);
 create index if not exists post_thread_id_desc on posts (thread, id desc);
 create index if not exists post_id_conc_path on posts (id, (path[1]));
 create index if not exists post_id_path on posts (id, path);
-create index if not exists post_parent_sel on posts (thread, (path[1]), id) WHERE parent = 0;
+create index if not exists post_parent_sel on posts (thread, id, (path[1])) WHERE parent = 0;
 create index if not exists post_author_hash on posts using hash (author);
 
 VACUUM;
