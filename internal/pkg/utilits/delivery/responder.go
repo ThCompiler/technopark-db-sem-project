@@ -30,7 +30,7 @@ func (h *Responder) Respond(ctx *routing.Context, code int, data easyjson.Marsha
 		jw := jwriter.Writer{}
 		data.MarshalEasyJSON(&jw)
 		if jw.Error != nil {
-			h.Log(ctx).Error(jw.Error)
+			//h.Log(ctx).Error(jw.Error)
 			wasErr = true
 		} else {
 			ctx.Response.Header.Set("Content-Type", "application/json")
@@ -38,7 +38,7 @@ func (h *Responder) Respond(ctx *routing.Context, code int, data easyjson.Marsha
 
 			_, err := jw.DumpTo(ctx.Response.BodyWriter())
 			if err != nil {
-				h.Log(ctx).Error(jw.Error)
+				//h.Log(ctx).Error(jw.Error)
 				wasErr = true
 			}
 		}
@@ -48,6 +48,6 @@ func (h *Responder) Respond(ctx *routing.Context, code int, data easyjson.Marsha
 		return
 	}
 	ctx.SetStatusCode(code)
-	logUser, _ := easyjson.Marshal(data)
-	h.Log(ctx).Info("Respond data: ", string(logUser))
+	//logUser, _ := easyjson.Marshal(data)
+	//h.Log(ctx).Info("Respond data: ", string(logUser))
 }

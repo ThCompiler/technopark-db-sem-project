@@ -68,7 +68,7 @@ func (h *ThreadPostsHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get psts %v", psts)
+	//h.Log(ctx).Debugf("get psts %v", psts)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToPostsResponse(psts))
 	return nil
 }

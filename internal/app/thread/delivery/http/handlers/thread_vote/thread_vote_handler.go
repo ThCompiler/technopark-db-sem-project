@@ -29,7 +29,7 @@ func (h *ThreadVoteHandler) POST(ctx *routing.Context) error {
 	req := &http_delivery.VoteRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
-		h.Log(ctx).Warnf("can not parse request %s", err)
+		//h.Log(ctx).Warnf("can not parse request %s", err)
 		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
 		return nil
 	}
@@ -47,7 +47,7 @@ func (h *ThreadVoteHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("set vote %v", thr)
+	//h.Log(ctx).Debugf("set vote %v", thr)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadResponse(thr))
 	return nil
 }

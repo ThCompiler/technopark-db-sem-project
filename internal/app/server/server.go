@@ -71,6 +71,6 @@ func (s *Server) Start(config *internal.Config) error {
 		h.Connect(routerApi.Connect(apiUrl))
 	}
 
-	s.logger.Info("start no http server")
+	//s.logger.Info("start no http server")
 	return fasthttp.ListenAndServe(config.BindAddr, router.HandleRequest)
 }

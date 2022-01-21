@@ -107,7 +107,7 @@ func (h *BaseHandler) ServeHTTP(ctx *routing.Context) error {
 	if ok {
 		hndlr(ctx)
 	} else {
-		h.Log(ctx).Errorf("Unexpected http method: %s", ctx.Method())
+		//h.Log(ctx).Errorf("Unexpected http method: %s", ctx.Method())
 		ctx.Response.Header.Set("Allow", strings.Join(h.getListMethods(), ", "))
 		ctx.SetStatusCode(http.StatusInternalServerError)
 	}

@@ -56,7 +56,7 @@ func (h *ForumThreadsHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get threads %v", thrs)
+	//h.Log(ctx).Debugf("get threads %v", thrs)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadsResponse(thrs))
 	return nil
 }

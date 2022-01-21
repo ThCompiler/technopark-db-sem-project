@@ -30,7 +30,7 @@ func (h *ServiceStatusHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get status of server %v", stat)
+	//h.Log(ctx).Debugf("get status of server %v", stat)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToStatusResponse(stat))
 	return nil
 }

@@ -49,7 +49,7 @@ func (h *ForumUsersHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get usrs %v", usrs)
+	//h.Log(ctx).Debugf("get usrs %v", usrs)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToUsersResponse(usrs))
 	return nil
 }

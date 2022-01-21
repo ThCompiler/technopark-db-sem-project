@@ -22,7 +22,7 @@ type ErrorConvertor struct {
 
 func (h *ErrorConvertor) UsecaseError(ctx *routing.Context, usecaseErr error, codeByErr CodeMap) {
 	var generalError *app.GeneralError
-	orginalError := usecaseErr
+	//orginalError := usecaseErr
 	if errors.As(usecaseErr, &generalError) {
 		usecaseErr = errors.Cause(usecaseErr).(*app.GeneralError).Err
 	}
@@ -37,12 +37,12 @@ func (h *ErrorConvertor) UsecaseError(ctx *routing.Context, usecaseErr error, co
 		}
 	}
 
-	h.Log(ctx).Logf(respond.Level, "Gotted error: %v", orginalError)
+	//h.Log(ctx).Logf(respond.Level, "Gotted error: %v", orginalError)
 	h.Error(ctx, respond.Code, respond.Error)
 }
 
 func (h *ErrorConvertor) HandlerError(ctx *routing.Context, code int, err error) {
-	h.Log(ctx).Errorf("Gotted error: %v", err)
+	//h.Log(ctx).Errorf("Gotted error: %v", err)
 
 	var generalError *app.GeneralError
 	if errors.As(err, &generalError) {

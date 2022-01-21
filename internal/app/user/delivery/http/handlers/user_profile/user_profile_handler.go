@@ -39,7 +39,7 @@ func (h *UserProfileHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get user %v", u)
+	//h.Log(ctx).Debugf("get user %v", u)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToUserResponse(u))
 	return nil
 }
@@ -48,7 +48,7 @@ func (h *UserProfileHandler) POST(ctx *routing.Context) error {
 	req := &http_delivery.UserUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
-		h.Log(ctx).Warnf("can not parse request %s", err)
+		//h.Log(ctx).Warnf("can not parse request %s", err)
 		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
 		return nil
 	}
@@ -71,7 +71,7 @@ func (h *UserProfileHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("update user %v", u)
+	//h.Log(ctx).Debugf("update user %v", u)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToUserResponse(u))
 	return nil
 }

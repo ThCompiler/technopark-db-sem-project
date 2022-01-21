@@ -29,7 +29,7 @@ func (h *ServiceClearHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debug("bd was cleared")
+	//h.Log(ctx).Debug("bd was cleared")
 	ctx.SetStatusCode(http.StatusOK)
 	return nil
 }

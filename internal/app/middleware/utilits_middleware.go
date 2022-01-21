@@ -2,15 +2,11 @@ package middleware
 
 import (
 	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"runtime/debug"
 	hf "tech-db-forum/internal/pkg/handler/handler_interfaces"
 	"tech-db-forum/internal/pkg/utilits"
-	"time"
-
-	uuid "github.com/satori/go.uuid"
-
-	"github.com/sirupsen/logrus"
 )
 
 type UtilitiesMiddleware struct {
@@ -39,7 +35,7 @@ func (mw *UtilitiesMiddleware) CheckPanic() hf.Handler {
 
 func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
 	return hf.HandlerFunc(func(ctx *routing.Context) error {
-		start := time.Now()
+		/*start := time.Now()
 		upgradeLogger := mw.log.BaseLog().WithFields(logrus.Fields{
 			"urls":        ctx.URI().String(),
 			"method":      string(ctx.Method()),
@@ -49,11 +45,12 @@ func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
 		})
 		ctx.SetUserValue("logger", upgradeLogger)
 		upgradeLogger.Info("Log was upgraded")
-
+*/
 		err := ctx.Next()
 
-		executeTime := time.Since(start).Milliseconds()
+		/*executeTime := time.Since(start).Milliseconds()
 		upgradeLogger.Infof("work time [ms]: %v", executeTime)
+		return err*/
 		return err
 	})
 }

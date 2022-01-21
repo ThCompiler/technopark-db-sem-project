@@ -31,7 +31,7 @@ func (h *ThreadCreateHandler) POST(ctx *routing.Context) error {
 	req := &http_delivery.ThreadCreateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
-		h.Log(ctx).Warnf("can not parse request %s", err)
+		//h.Log(ctx).Warnf("can not parse request %s", err)
 		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
 		return nil
 	}
@@ -56,7 +56,7 @@ func (h *ThreadCreateHandler) POST(ctx *routing.Context) error {
 	})
 
 	if err == postgresql_utilits.Conflict {
-		h.Log(ctx).Warnf("conflict with request %v", req)
+		//h.Log(ctx).Warnf("conflict with request %v", req)
 		h.Respond(ctx, http.StatusConflict, http_delivery.ToThreadResponse(thr))
 		return nil
 	}
@@ -66,7 +66,7 @@ func (h *ThreadCreateHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("create thread %v", thr)
+	//h.Log(ctx).Debugf("create thread %v", thr)
 	h.Respond(ctx, http.StatusCreated, http_delivery.ToThreadResponse(thr))
 	return nil
 }

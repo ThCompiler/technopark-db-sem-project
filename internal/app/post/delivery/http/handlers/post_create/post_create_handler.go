@@ -29,7 +29,7 @@ func (h *PostCreateHandler) POST(ctx *routing.Context) error {
 	req := &http_delivery.PostsCreateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
-		h.Log(ctx).Warnf("can not parse request %s", err)
+		//h.Log(ctx).Warnf("can not parse request %s", err)
 		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
 		return nil
 	}
@@ -57,7 +57,7 @@ func (h *PostCreateHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("create post %v", pst)
+	//h.Log(ctx).Debugf("create post %v", pst)
 	h.Respond(ctx, http.StatusCreated, http_delivery.ToPostsResponse(pst))
 	return nil
 }

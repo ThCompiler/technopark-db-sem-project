@@ -37,7 +37,7 @@ func (h *ForumDetailsHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get post %v", frm)
+	//h.Log(ctx).Debugf("get post %v", frm)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToForumResponse(frm))
 	return nil
 }

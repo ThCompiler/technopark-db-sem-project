@@ -95,5 +95,5 @@ func main() {
 	if err = serv.Start(&config); err != nil {
 		logger.Fatal(err)
 	}
-	logger.Info("Server was stopped")
+	//logger.Info("Server was stopped")
 }

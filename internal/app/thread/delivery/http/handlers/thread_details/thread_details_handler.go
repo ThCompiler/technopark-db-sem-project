@@ -39,7 +39,7 @@ func (h *ThreadDetailsHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get thread %v", thr)
+	//h.Log(ctx).Debugf("get thread %v", thr)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadResponse(thr))
 	return nil
 }
@@ -48,7 +48,7 @@ func (h *ThreadDetailsHandler) POST(ctx *routing.Context) error {
 	req := &http_delivery.ThreadUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
-		h.Log(ctx).Warnf("can not parse request %s", err)
+		//h.Log(ctx).Warnf("can not parse request %s", err)
 		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
 		return nil
 	}
@@ -71,7 +71,7 @@ func (h *ThreadDetailsHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("update post %v", thr)
+	//h.Log(ctx).Debugf("update post %v", thr)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadResponse(thr))
 	return nil
 }

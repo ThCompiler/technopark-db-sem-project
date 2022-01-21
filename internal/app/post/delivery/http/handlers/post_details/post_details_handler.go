@@ -57,7 +57,7 @@ func (h *PostDetailsHandler) GET(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("get post %v", pst)
+	//h.Log(ctx).Debugf("get post %v", pst)
 	h.Respond(ctx, http.StatusOK, &response)
 	return nil
 }
@@ -66,7 +66,7 @@ func (h *PostDetailsHandler) POST(ctx *routing.Context) error {
 	req := &http_delivery.PostUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
-		h.Log(ctx).Warnf("can not parse request %s", err)
+		//h.Log(ctx).Warnf("can not parse request %s", err)
 		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
 		return nil
 	}
@@ -89,7 +89,7 @@ func (h *PostDetailsHandler) POST(ctx *routing.Context) error {
 		return nil
 	}
 
-	h.Log(ctx).Debugf("update post %v", pst)
+	//h.Log(ctx).Debugf("update post %v", pst)
 	h.Respond(ctx, http.StatusOK, http_delivery.ToPostResponse(pst))
 	return nil
 }
