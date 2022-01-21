@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -20,7 +19,7 @@ type ErrorConvertor struct {
 	Responder
 }
 
-func (h *ErrorConvertor) UsecaseError(ctx echo.Context, usecaseErr error, codeByErr CodeMap) {
+func (h *ErrorConvertor) UsecaseError(w http.ResponseWriter, r *http.Request, usecaseErr error, codeByErr CodeMap) {
 	var generalError *app.GeneralError
 	//orginalError := usecaseErr
 	if errors.As(usecaseErr, &generalError) {
@@ -37,16 +36,16 @@ func (h *ErrorConvertor) UsecaseError(ctx echo.Context, usecaseErr error, codeBy
 		}
 	}
 
-	//h.Log(ctx).Logf(respond.Level, "Gotted error: %v", orginalError)
-	h.Error(ctx, respond.Code, respond.Error)
+	//h.Log(w, r).Logf(respond.Level, "Gotted error: %v", orginalError)
+	h.Error(w, r, respond.Code, respond.Error)
 }
 
-func (h *ErrorConvertor) HandlerError(ctx echo.Context, code int, err error) {
-	//h.Log(ctx).Errorf("Gotted error: %v", err)
+func (h *ErrorConvertor) HandlerError(w http.ResponseWriter, r *http.Request, code int, err error) {
+	//h.Log(w, r).Errorf("Gotted error: %v", err)
 
 	var generalError *app.GeneralError
 	if errors.As(err, &generalError) {
 		err = errors.Cause(err).(*app.GeneralError).Err
 	}
-	h.Error(ctx, code, err)
+	h.Error(w, r, code, err)
 }

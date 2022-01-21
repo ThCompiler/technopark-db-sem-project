@@ -1,7 +1,6 @@
 package forum_threads_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum"
@@ -26,23 +25,23 @@ func NewForumThreadsHandler(log *logrus.Logger, rep repository.Repository) *Foru
 	return h
 }
 
-func (h *ForumThreadsHandler) GET(ctx echo.Context) error {
-	slug, status := h.GetStringFromParam(ctx, "slug")
+func (h *ForumThreadsHandler) GET(w http.ResponseWriter, r *http.Request) {
+	slug, status := h.GetStringFromParam(w, r, "slug")
 	if status == bh.EmptyQuery {
-		h.Error(ctx, http.StatusBadRequest, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, http.StatusBadRequest, handler_errors.InvalidQueries)
+		return
 	}
 
-	pag, status, err := h.GetPaginationFromQuery(ctx)
+	pag, status, err := h.GetPaginationFromQuery(w, r)
 	if err != nil {
-		h.Error(ctx, status, err)
-		return nil
+		h.Error(w, r, status, err)
+		return
 	}
 
 	date, err := time.Parse(time.RFC3339, pag.Since)
 	if err != nil && pag.Since != "" {
-		h.Error(ctx, http.StatusBadRequest, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, http.StatusBadRequest, handler_errors.InvalidQueries)
+		return
 	}
 
 	since := (*time.Time)(nil)
@@ -52,11 +51,11 @@ func (h *ForumThreadsHandler) GET(ctx echo.Context) error {
 
 	thrs, err := h.forumRepository.GetThreads(slug, &forum.PaginationThread{Limit: pag.Limit, Desc: pag.Desc, Since: since})
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get threads %v", thrs)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadsResponse(thrs))
-	return nil
+	//h.Log(w, r).Debugf("get threads %v", thrs)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToThreadsResponse(thrs))
+	return
 }

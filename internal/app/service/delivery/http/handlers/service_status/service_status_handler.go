@@ -1,7 +1,6 @@
 package service_status_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/service/delivery/http"
@@ -23,14 +22,14 @@ func NewServiceStatusHandler(log *logrus.Logger, rep repository.Repository) *Ser
 	return h
 }
 
-func (h *ServiceStatusHandler) GET(ctx echo.Context) error {
+func (h *ServiceStatusHandler) GET(w http.ResponseWriter, r *http.Request) {
 	stat, err := h.serviceRepository.GetStat()
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get status of server %v", stat)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToStatusResponse(stat))
-	return nil
+	//h.Log(w, r).Debugf("get status of server %v", stat)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToStatusResponse(stat))
+	return
 }

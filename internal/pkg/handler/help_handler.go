@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/gorilla/mux"
 	"github.com/mailru/easyjson"
 	"io"
 	"net/http"
@@ -28,17 +28,18 @@ type HelpHandlers struct {
 	delivery.ErrorConvertor
 }
 
-func (h *HelpHandlers) PrintRequest(ctx echo.Context) {
-	//h.Log(ctx).Infof("Request: %s. From URL: %s", ctx.Method(), string(ctx.URI().Host())+string(ctx.Path()))
+func (h *HelpHandlers) PrintRequest(w http.ResponseWriter, r *http.Request) {
+	//h.Log(w, r).Infof("Request: %s. From URL: %s", w, r.Method(), string(w, r.URI().Host())+string(w, r.Path()))
 }
 
 // GetInt64FromParam HTTPErrors
 //		Status 400 handler_errors.InvalidParameters
-func (h *HelpHandlers) GetInt64FromParam(ctx echo.Context, name string) (int64, int, error) {
-	number := ctx.Param(name)
+func (h *HelpHandlers) GetInt64FromParam(w http.ResponseWriter, r *http.Request, name string) (int64, int, error) {
+	vars := mux.Vars(r)
+	number := vars[name]
 	numberInt, err := strconv.ParseInt(number, 10, 64)
 	if number == "" || err != nil {
-		//h.Log(ctx).Infof("can't get parametrs %s, was got %v)", name, number)
+		//h.Log(w, r).Infof("can't get parametrs %s, was got %v)", name, number)
 		return app.InvalidInt, http.StatusBadRequest, handler_errors.InvalidParameters
 	}
 	return numberInt, app.InvalidInt, nil
@@ -51,8 +52,8 @@ func (h *HelpHandlers) GetInt64FromParam(ctx echo.Context, name string) (int64, 
 //	Param desc  query bool false "
 // Errors:
 // 	Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetPaginationFromQuery(ctx echo.Context) (*Pagination, int, error) {
-	limit, code, err := h.GetInt64FromQueries(ctx, "limit")
+func (h *HelpHandlers) GetPaginationFromQuery(w http.ResponseWriter, r *http.Request) (*Pagination, int, error) {
+	limit, code, err := h.GetInt64FromQueries(w, r, "limit")
 	if err != nil {
 		return nil, code, err
 	}
@@ -61,9 +62,9 @@ func (h *HelpHandlers) GetPaginationFromQuery(ctx echo.Context) (*Pagination, in
 		limit = DefaultLimit
 	}
 
-	desc := h.GetBoolFromQueries(ctx, "desc")
+	desc := h.GetBoolFromQueries(w, r, "desc")
 
-	since, info := h.GetStringFromQueries(ctx, "since")
+	since, info := h.GetStringFromQueries(w, r, "since")
 	if info == EmptyQuery {
 		since = ""
 	}
@@ -72,8 +73,8 @@ func (h *HelpHandlers) GetPaginationFromQuery(ctx echo.Context) (*Pagination, in
 
 // GetInt64FromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetInt64FromQueries(ctx echo.Context, name string) (int64, int, error) {
-	number := ctx.QueryParam(name)
+func (h *HelpHandlers) GetInt64FromQueries(w http.ResponseWriter, r *http.Request, name string) (int64, int, error) {
+	number := r.URL.Query().Get(name)
 	if number == "" {
 		return EmptyQuery, app.InvalidInt, nil
 	}
@@ -88,8 +89,8 @@ func (h *HelpHandlers) GetInt64FromQueries(ctx echo.Context, name string) (int64
 
 // GetBoolFromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetBoolFromQueries(ctx echo.Context, name string) bool {
-	number := ctx.QueryParam(name)
+func (h *HelpHandlers) GetBoolFromQueries(w http.ResponseWriter, r *http.Request, name string) bool {
+	number := r.URL.Query().Get(name)
 	if number == "" {
 		return false
 	}
@@ -104,8 +105,8 @@ func (h *HelpHandlers) GetBoolFromQueries(ctx echo.Context, name string) bool {
 
 // GetStringFromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetStringFromQueries(ctx echo.Context, name string) (string, int) {
-	value := ctx.QueryParam(name)
+func (h *HelpHandlers) GetStringFromQueries(w http.ResponseWriter, r *http.Request, name string) (string, int) {
+	value := r.URL.Query().Get(name)
 	if value == "" {
 		return "", EmptyQuery
 	}
@@ -115,8 +116,9 @@ func (h *HelpHandlers) GetStringFromQueries(ctx echo.Context, name string) (stri
 
 // GetStringFromParam HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetStringFromParam(ctx echo.Context, name string) (string, int) {
-	value := ctx.Param(name)
+func (h *HelpHandlers) GetStringFromParam(w http.ResponseWriter, r *http.Request, name string) (string, int) {
+	vars := mux.Vars(r)
+	value := vars[name]
 	if value == "" {
 		return "", EmptyQuery
 	}
@@ -126,8 +128,8 @@ func (h *HelpHandlers) GetStringFromParam(ctx echo.Context, name string) (string
 
 // GetArrayStringFromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetArrayStringFromQueries(ctx echo.Context, name string) ([]string, int) {
-	values := ctx.QueryParam(name)
+func (h *HelpHandlers) GetArrayStringFromQueries(w http.ResponseWriter, r *http.Request, name string) ([]string, int) {
+	values := r.URL.Query().Get(name)
 	if values == "" {
 		return nil, EmptyQuery
 	}
@@ -137,8 +139,9 @@ func (h *HelpHandlers) GetArrayStringFromQueries(ctx echo.Context, name string) 
 
 // GetThreadSlugFromParam HTTPErrors
 //		Status 400 handler_errors.InvalidParameters
-func (h *HelpHandlers) GetThreadSlugFromParam(ctx echo.Context, name string) (*thread.ThreadPK, int) {
-	value := ctx.Param(name)
+func (h *HelpHandlers) GetThreadSlugFromParam(w http.ResponseWriter, r *http.Request, name string) (*thread.ThreadPK, int) {
+	vars := mux.Vars(r)
+	value := vars[name]
 	if value == "" {
 		return nil, EmptyQuery
 	}
@@ -152,12 +155,12 @@ func (h *HelpHandlers) GetThreadSlugFromParam(ctx echo.Context, name string) (*t
 	return res, app.InvalidInt
 }
 
-func (h *HelpHandlers) GetRequestBody(ctx echo.Context, reqStruct easyjson.Unmarshaler) error {
+func (h *HelpHandlers) GetRequestBody(w http.ResponseWriter, r *http.Request, reqStruct easyjson.Unmarshaler) error {
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
-	}(ctx.Request().Body)
+	}(r.Body)
 
-	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, reqStruct); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, reqStruct); err != nil {
 		return err
 	}
 	return nil

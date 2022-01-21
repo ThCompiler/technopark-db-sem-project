@@ -1,17 +1,17 @@
 package handler_interfaces
 
 import (
-	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
-type HandlerFunc func(ctx echo.Context) error
+type HandlerFunc func(w http.ResponseWriter, r *http.Request)
 
-func (f HandlerFunc) ServeHTTP(ctx echo.Context) error {
-	return f(ctx)
+func (f HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	f(w, r)
 }
 
 type Handler interface {
-	ServeHTTP(ctx echo.Context) error
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
-type HMiddlewareFunc func(Handler) Handler
-type HFMiddlewareFunc func(HandlerFunc) HandlerFunc
+type HMiddlewareFunc func(http.Handler) http.Handler
+type HFMiddlewareFunc func(http.HandlerFunc) http.HandlerFunc

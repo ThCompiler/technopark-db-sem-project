@@ -20,33 +20,33 @@ func NewUtilitiesMiddleware(log *logrus.Logger) UtilitiesMiddleware {
 }
 /*
 func (mw *UtilitiesMiddleware) CheckPanic() hf.Handler {
-	return hf.HandlerFunc(func(ctx echo.Context) error {
-		defer func(log *logrus.Entry, ctx echo.Context) {
+	return hf.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func(log *logrus.Entry, w http.ResponseWriter, r *http.Request) {
 			if err := recover(); err != nil {
 				responseErr := http.StatusInternalServerError
 
 				log.Errorf("detacted critical error: %v, with stack: %s", err, debug.Stack())
-				ctx.Response().WriteHeader(responseErr)
+				w.WriteHeader(responseErr)
 			}
-		}(mw.log.Log(ctx), ctx)
-		return ctx.Next()
+		}(mw.log.Log(w, r), w, r)
+		return w, r.Next()
 	})
 }
 
 func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
-	return hf.HandlerFunc(func(ctx echo.Context) error {
+	return hf.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		/*start := time.Now()
 		upgradeLogger := mw.log.BaseLog().WithFields(logrus.Fields{
-			"urls":        ctx.URI().String(),
-			"method":      string(ctx.Method()),
-			"remote_addr": ctx.RemoteAddr(),
+			"urls":        w, r.URI().String(),
+			"method":      string(w, r.Method()),
+			"remote_addr": w, r.RemoteAddr(),
 			"work_time":   time.Since(start).Milliseconds(),
 			"req_id":      uuid.NewV4(),
 		})
-		ctx.SetUserValue("logger", upgradeLogger)
+		w, r.SetUserValue("logger", upgradeLogger)
 		upgradeLogger.Info("Log was upgraded")
 */
-		err := ctx.Next()
+		err := w, r.Next()
 
 		/*executeTime := time.Since(start).Milliseconds()
 		upgradeLogger.Infof("work time [ms]: %v", executeTime)

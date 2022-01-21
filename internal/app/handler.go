@@ -1,10 +1,11 @@
 package app
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
 type Handler interface {
-	ServeHTTP(ctx echo.Context) error
-	Connect(router *echo.Group, path string)
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
+	Connect(router *mux.Route)
 }

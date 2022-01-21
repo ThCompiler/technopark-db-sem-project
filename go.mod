@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/alicebob/miniredis/v2 v2.17.0
 	github.com/gomodule/redigo v1.8.6
+	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/labstack/echo/v4 v4.6.3
 	github.com/lib/pq v1.10.4

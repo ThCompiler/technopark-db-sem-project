@@ -1,7 +1,6 @@
 package thread_vote_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/thread/delivery/http"
@@ -25,29 +24,29 @@ func NewThreadVoteHandler(log *logrus.Logger, rep repository.Repository) *Thread
 	return h
 }
 
-func (h *ThreadVoteHandler) POST(ctx echo.Context) error {
+func (h *ThreadVoteHandler) POST(w http.ResponseWriter, r *http.Request) {
 	req := &http_delivery.VoteRequest{}
-	err := h.GetRequestBody(ctx, req)
+	err := h.GetRequestBody(w, r, req)
 	if err != nil {
-		//h.Log(ctx).Warnf("can not parse request %s", err)
-		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
-		return nil
+		//h.Log(w, r).Warnf("can not parse request %s", err)
+		h.Error(w, r, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
+		return
 	}
 
-	id, status := h.GetThreadSlugFromParam(ctx, "slug")
+	id, status := h.GetThreadSlugFromParam(w, r, "slug")
 	if status == bh.EmptyQuery {
-		h.Error(ctx, status, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, status, handler_errors.InvalidQueries)
+		return
 	}
 
 	thr, err := h.threadRepository.SetVote(id, req.Nickname, req.Voice)
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("set vote %v", thr)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToThreadResponse(thr))
-	return nil
+	//h.Log(w, r).Debugf("set vote %v", thr)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToThreadResponse(thr))
+	return
 }

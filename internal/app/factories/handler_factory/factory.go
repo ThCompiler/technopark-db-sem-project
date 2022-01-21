@@ -79,28 +79,28 @@ func (f *HandlerFactory) GetHandleUrls() *map[string]app.Handler {
 	hs := f.initAllHandlers()
 	f.urlHandler = &map[string]app.Handler{
 		//=============user==============//
-		"/user/:nickname/profile": hs[PROFILE],
-		"/user/:nickname/create":  hs[USER_CREATE],
+		"/user/{nickname}/profile": hs[PROFILE],
+		"/user/{nickname}/create":  hs[USER_CREATE],
 
 		//===========service=============//
 		"/service/clear":  hs[SERVICE_CLEAR],
 		"/service/status": hs[SERVICE_STATUS],
 
 		//=============post==============//
-		"/post/:id/details":  hs[POST_DETAILS],
-		"/thread/:slug/create": hs[POST_CREATE],
+		"/post/{id}/details":  hs[POST_DETAILS],
+		"/thread/{slug}/create": hs[POST_CREATE],
 
 		//=============forum=============//
 		"/forum/create":         hs[FORUM_CREATE],
-		"/forum/:slug/details": hs[FORUM_DETAILS],
-		"/forum/:slug/users":   hs[FORUM_USERS],
-		"/forum/:slug/threads": hs[FORUM_THREADS],
+		"/forum/{slug}/details": hs[FORUM_DETAILS],
+		"/forum/{slug}/users":   hs[FORUM_USERS],
+		"/forum/{slug}/threads": hs[FORUM_THREADS],
 
 		//============thread=============//
-		"/forum/:slug/create":   hs[THREAD_CREATE],
-		"/thread/:slug/details": hs[THREAD_DETAILS],
-		"/thread/:slug/posts":   hs[THREAD_POSTS],
-		"/thread/:slug/vote":    hs[THREAD_VOTE],
+		"/forum/{slug}/create":   hs[THREAD_CREATE],
+		"/thread/{slug}/details": hs[THREAD_DETAILS],
+		"/thread/{slug}/posts":   hs[THREAD_POSTS],
+		"/thread/{slug}/vote":    hs[THREAD_VOTE],
 	}
 	return f.urlHandler
 }

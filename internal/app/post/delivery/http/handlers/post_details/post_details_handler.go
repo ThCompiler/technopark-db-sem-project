@@ -1,7 +1,6 @@
 package post_details_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	repForum "tech-db-forum/internal/app/forum/repository"
@@ -36,45 +35,45 @@ func NewPostDetailsHandler(log *logrus.Logger, rep repository.Repository, repTh 
 	return h
 }
 
-func (h *PostDetailsHandler) GET(ctx echo.Context) error {
-	id, status, err := h.GetInt64FromParam(ctx, "id")
+func (h *PostDetailsHandler) GET(w http.ResponseWriter, r *http.Request) {
+	id, status, err := h.GetInt64FromParam(w, r, "id")
 	if err != nil {
-		h.Error(ctx, status, err)
-		return nil
+		h.Error(w, r, status, err)
+		return
 	}
 
-	related, _ := h.GetArrayStringFromQueries(ctx, "related")
+	related, _ := h.GetArrayStringFromQueries(w, r, "related")
 
 	pst, err := h.postRepository.Get(id)
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 	response := http_delivery.GetPostResponse{Post: http_delivery.ToPostResponse(pst)}
 
 	if err = h.selectRelatedValueForPost(pst, &response, related); err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get post %v", pst)
-	h.Respond(ctx, http.StatusOK, &response)
-	return nil
+	//h.Log(w, r).Debugf("get post %v", pst)
+	h.Respond(w, r, http.StatusOK, &response)
+	return
 }
 
-func (h *PostDetailsHandler) POST(ctx echo.Context) error {
+func (h *PostDetailsHandler) POST(w http.ResponseWriter, r *http.Request) {
 	req := &http_delivery.PostUpdateRequest{}
-	err := h.GetRequestBody(ctx, req)
+	err := h.GetRequestBody(w, r, req)
 	if err != nil {
-		//h.Log(ctx).Warnf("can not parse request %s", err)
-		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
-		return nil
+		//h.Log(w, r).Warnf("can not parse request %s", err)
+		h.Error(w, r, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
+		return
 	}
 
-	id, status, err := h.GetInt64FromParam(ctx, "id")
+	id, status, err := h.GetInt64FromParam(w, r, "id")
 	if err != nil {
-		h.Error(ctx, status, err)
-		return nil
+		h.Error(w, r, status, err)
+		return
 	}
 
 	var pst *post.Post
@@ -85,11 +84,11 @@ func (h *PostDetailsHandler) POST(ctx echo.Context) error {
 	}
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsPOST)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsPOST)
+		return
 	}
 
-	//h.Log(ctx).Debugf("update post %v", pst)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToPostResponse(pst))
-	return nil
+	//h.Log(w, r).Debugf("update post %v", pst)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToPostResponse(pst))
+	return
 }

@@ -1,7 +1,6 @@
 package forum_users_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum"
@@ -25,17 +24,17 @@ func NewForumUsersHandler(log *logrus.Logger, rep repository.Repository) *ForumU
 	return h
 }
 
-func (h *ForumUsersHandler) GET(ctx echo.Context) error {
-	slug, status := h.GetStringFromParam(ctx, "slug")
+func (h *ForumUsersHandler) GET(w http.ResponseWriter, r *http.Request) {
+	slug, status := h.GetStringFromParam(w, r, "slug")
 	if status == bh.EmptyQuery {
-		h.Error(ctx, http.StatusBadRequest, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, http.StatusBadRequest, handler_errors.InvalidQueries)
+		return
 	}
 
-	pag, status, err := h.GetPaginationFromQuery(ctx)
+	pag, status, err := h.GetPaginationFromQuery(w, r)
 	if err != nil {
-		h.Error(ctx, status, err)
-		return nil
+		h.Error(w, r, status, err)
+		return
 	}
 
 	usrs, err := h.forumRepository.GetUsers(slug, &forum.PaginationUser{
@@ -45,11 +44,11 @@ func (h *ForumUsersHandler) GET(ctx echo.Context) error {
 	})
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get usrs %v", usrs)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToUsersResponse(usrs))
-	return nil
+	//h.Log(w, r).Debugf("get usrs %v", usrs)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToUsersResponse(usrs))
+	return
 }

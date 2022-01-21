@@ -1,7 +1,6 @@
 package service_clear_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/service/repository"
@@ -22,14 +21,14 @@ func NewServiceClearHandler(log *logrus.Logger, rep repository.Repository) *Serv
 	return h
 }
 
-func (h *ServiceClearHandler) POST(ctx echo.Context) error {
+func (h *ServiceClearHandler) POST(w http.ResponseWriter, r *http.Request) {
 	err := h.serviceRepository.Clear()
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsPOST)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsPOST)
+		return
 	}
 
-	//h.Log(ctx).Debug("bd was cleared")
-	ctx.Response().WriteHeader(http.StatusOK)
-	return nil
+	//h.Log(w, r).Debug("bd was cleared")
+	w.WriteHeader(http.StatusOK)
+	return
 }

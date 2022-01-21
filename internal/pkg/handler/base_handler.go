@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
 	hf "tech-db-forum/internal/pkg/handler/handler_interfaces"
@@ -20,13 +20,13 @@ const (
 )
 
 type BaseHandler struct {
-	handlerMethods map[string]hf.HandlerFunc
+	handlerMethods map[string]http.HandlerFunc
 	middlewares    []hf.HMiddlewareFunc
 	HelpHandlers
 }
 
 func NewBaseHandler(log *logrus.Logger) *BaseHandler {
-	h := &BaseHandler{handlerMethods: map[string]hf.HandlerFunc{}, middlewares: []hf.HMiddlewareFunc{},
+	h := &BaseHandler{handlerMethods: map[string]http.HandlerFunc{}, middlewares: []hf.HMiddlewareFunc{},
 		HelpHandlers: HelpHandlers{
 			ErrorConvertor: delivery.ErrorConvertor{
 				Responder: delivery.Responder{
@@ -42,12 +42,12 @@ func (h *BaseHandler) AddMiddleware(middleware ...hf.HMiddlewareFunc) {
 	h.middlewares = append(h.middlewares, middleware...)
 }
 
-func (h *BaseHandler) AddMethod(method string, handlerMethod hf.HandlerFunc, middlewares ...hf.HFMiddlewareFunc) {
+func (h *BaseHandler) AddMethod(method string, handlerMethod http.HandlerFunc, middlewares ...hf.HFMiddlewareFunc) {
 	h.handlerMethods[method] = h.applyHFMiddleware(handlerMethod, middlewares...)
 }
 
-func (h *BaseHandler) applyHFMiddleware(handlerMethod hf.HandlerFunc,
-	middlewares ...hf.HFMiddlewareFunc) hf.HandlerFunc {
+func (h *BaseHandler) applyHFMiddleware(handlerMethod http.HandlerFunc,
+	middlewares ...hf.HFMiddlewareFunc) http.HandlerFunc {
 	resultHandlerMethod := handlerMethod
 	for index := len(middlewares) - 1; index >= 0; index-- {
 		resultHandlerMethod = middlewares[index](resultHandlerMethod)
@@ -55,12 +55,12 @@ func (h *BaseHandler) applyHFMiddleware(handlerMethod hf.HandlerFunc,
 	return resultHandlerMethod
 }
 
-func (h *BaseHandler) applyMiddleware(handler hf.Handler) echo.HandlerFunc {
+func (h *BaseHandler) applyMiddleware(handler http.Handler) http.Handler {
 	resultHandler := handler
 	for index := len(h.middlewares) - 1; index >= 0; index-- {
 		resultHandler = h.middlewares[index](resultHandler)
 	}
-	return resultHandler.ServeHTTP
+	return resultHandler
 }
 
 func (h *BaseHandler) getListMethods() []string {
@@ -72,44 +72,29 @@ func (h *BaseHandler) getListMethods() []string {
 	return useMethods
 }
 
-func (h *BaseHandler) add(path string, handler echo.HandlerFunc, route *echo.Group) {
+func (h *BaseHandler) add(handler http.Handler, route *mux.Route) {
+	var methods []string
 	for key := range h.handlerMethods {
-		switch key {
-		case GET:
-			route.GET(path, handler)
-			break
-		case POST:
-			route.POST(path, handler)
-			break
-		case PUT:
-			route.PUT(path, handler)
-			break
-		case DELETE:
-			route.DELETE(path, handler)
-			break
-		case OPTIONS:
-			route.OPTIONS(path, handler)
-			break
-		}
+		methods = append(methods, key)
 	}
+	route.Handler(handler).Methods(methods...)
 }
 
-func (h *BaseHandler) Connect(route *echo.Group, path string) {
-	h.add(path, h.applyMiddleware(h), route)
+func (h *BaseHandler) Connect(route *mux.Route) {
+	h.add(h.applyMiddleware(h), route)
 }
 
-func (h *BaseHandler) ServeHTTP(ctx echo.Context) error {
-	h.PrintRequest(ctx)
+func (h *BaseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	h.PrintRequest(w, r)
 	ok := true
-	var hndlr hf.HandlerFunc
+	var hndlr http.HandlerFunc
 
-	hndlr, ok = h.handlerMethods[ctx.Request().Method]
+	hndlr, ok = h.handlerMethods[r.Method]
 	if ok {
-		return hndlr(ctx)
+		hndlr(w, r)
 	} else {
-		//h.Log(ctx).Errorf("Unexpected http method: %s", ctx.Method())
-		ctx.Request().Header.Set("Allow", strings.Join(h.getListMethods(), ", "))
-		ctx.Response().WriteHeader(http.StatusInternalServerError)
+		//h.Log(w, r).Errorf("Unexpected http method: %s", w, r.Method())
+		r.Header.Set("Allow", strings.Join(h.getListMethods(), ", "))
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-	return nil
 }

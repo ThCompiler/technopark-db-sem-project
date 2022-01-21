@@ -3,6 +3,7 @@ package delivery
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mailru/easyjson"
+	"net/http"
 	"tech-db-forum/internal/pkg/utilits"
 )
 
@@ -17,19 +18,19 @@ type Responder struct {
 	utilits.LogObject
 }
 
-func (h *Responder) Error(ctx echo.Context, code int, err error) {
-	h.Respond(ctx, code, ErrResponse{Err: err.Error()})
+func (h *Responder) Error(w http.ResponseWriter, r *http.Request, code int, err error) {
+	h.Respond(w, r, code, ErrResponse{Err: err.Error()})
 }
 
-func (h *Responder) Respond(ctx echo.Context, code int, data easyjson.Marshaler) {
-	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-	ctx.Response().WriteHeader(code)
+func (h *Responder) Respond(w http.ResponseWriter, r *http.Request, code int, data easyjson.Marshaler) {
+	w.Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+	w.WriteHeader(code)
 	if data != nil {
-		_, _, err := easyjson.MarshalToHTTPResponseWriter(data, ctx.Response())
+		_, _, err := easyjson.MarshalToHTTPResponseWriter(data, w)
 		if err != nil {
-			//h.Log(ctx).Error(jw.Error)
+			//h.Log(w, r).Error(jw.Error)
 		}
 	}
 	//logUser, _ := easyjson.Marshal(data)
-	//h.Log(ctx).Info("Respond data: ", string(logUser))
+	//h.Log(w, r).Info("Respond data: ", string(logUser))
 }

@@ -1,7 +1,6 @@
 package user_create_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/user"
@@ -26,19 +25,19 @@ func NewUserCreateHandler(log *logrus.Logger, rep repository.Repository) *UserCr
 	return h
 }
 
-func (h *UserCreateHandler) POST(ctx echo.Context) error {
+func (h *UserCreateHandler) POST(w http.ResponseWriter, r *http.Request) {
 	req := &http_delivery.UserUpdateRequest{}
-	err := h.GetRequestBody(ctx, req)
+	err := h.GetRequestBody(w, r, req)
 	if err != nil {
-		//h.Log(ctx).Warnf("can not parse request %s", err)
-		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
-		return nil
+		//h.Log(w, r).Warnf("can not parse request %s", err)
+		h.Error(w, r, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
+		return
 	}
 
-	nickname, status := h.GetStringFromParam(ctx, "nickname")
+	nickname, status := h.GetStringFromParam(w, r, "nickname")
 	if status == bh.EmptyQuery {
-		ctx.Response().WriteHeader(http.StatusBadRequest)
-		return nil
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	u, err := h.userRepository.Create(&user.User{
@@ -49,17 +48,17 @@ func (h *UserCreateHandler) POST(ctx echo.Context) error {
 	})
 
 	if err == postgresql_utilits.Conflict {
-		//h.Log(ctx).Warnf("conflict with request %v", req)
-		h.Respond(ctx, http.StatusConflict, http_delivery.ToUsersResponse(u))
-		return nil
+		//h.Log(w, r).Warnf("conflict with request %v", req)
+		h.Respond(w, r, http.StatusConflict, http_delivery.ToUsersResponse(u))
+		return
 	}
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsPOST)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsPOST)
+		return
 	}
 
-	//h.Log(ctx).Debugf("create user %v", u)
-	h.Respond(ctx, http.StatusCreated, http_delivery.ToUserResponse(&u[0]))
-	return nil
+	//h.Log(w, r).Debugf("create user %v", u)
+	h.Respond(w, r, http.StatusCreated, http_delivery.ToUserResponse(&u[0]))
+	return
 }

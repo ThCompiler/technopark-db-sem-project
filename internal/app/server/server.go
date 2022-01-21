@@ -2,8 +2,9 @@ package server
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 	"tech-db-forum/internal"
 	"tech-db-forum/internal/app"
 	"tech-db-forum/internal/app/factories/handler_factory"
@@ -52,10 +53,10 @@ func (s *Server) Start(config *internal.Config) error {
 		return err
 	}
 
-	router := echo.New()
+	router := mux.NewRouter()
 	//router.Get("/debug/pprof/<profile>", handler_interfaces.FastHTTPFunc(pprofhandler.PprofHandler).ServeHTTP)
 
-	routerApi := router.Group("/api")
+	routerApi := router.PathPrefix("/api").Subrouter()
 
 	repositoryFactory := repository_factory.NewRepositoryFactory(s.logger, s.connections)
 	factory := handler_factory.NewFactory(s.logger, repositoryFactory)
@@ -65,9 +66,9 @@ func (s *Server) Start(config *internal.Config) error {
 	//routerApi.Use(utilitsMiddleware.UpgradeLogger().ServeHTTP, utilitsMiddleware.CheckPanic().ServeHTTP)
 
 	for apiUrl, h := range *hs {
-		h.Connect(routerApi, apiUrl)
+		h.Connect(routerApi.Path(apiUrl))
 	}
 
 	//s.logger.Info("start no http server")
-	return router.Start(config.BindAddr)
+	return http.ListenAndServe(s.config.BindAddr, router)
 }

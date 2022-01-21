@@ -1,7 +1,6 @@
 package forum_details_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum/delivery/http"
@@ -24,20 +23,20 @@ func NewForumDetailsHandler(log *logrus.Logger, rep repository.Repository) *Foru
 	return h
 }
 
-func (h *ForumDetailsHandler) GET(ctx echo.Context) error {
-	id, status := h.GetStringFromParam(ctx, "slug")
+func (h *ForumDetailsHandler) GET(w http.ResponseWriter, r *http.Request) {
+	id, status := h.GetStringFromParam(w, r, "slug")
 	if status == bh.EmptyQuery {
-		h.Error(ctx, http.StatusBadRequest, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, http.StatusBadRequest, handler_errors.InvalidQueries)
+		return
 	}
 
 	frm, err := h.forumRepository.Get(id)
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get post %v", frm)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToForumResponse(frm))
-	return nil
+	//h.Log(w, r).Debugf("get post %v", frm)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToForumResponse(frm))
+	return
 }

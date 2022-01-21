@@ -1,7 +1,6 @@
 package thread_posts_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
@@ -28,30 +27,30 @@ func NewThreadPostsHandler(log *logrus.Logger, rep repository.Repository) *Threa
 	return h
 }
 
-func (h *ThreadPostsHandler) GET(ctx echo.Context) error {
-	id, status := h.GetThreadSlugFromParam(ctx, "slug")
+func (h *ThreadPostsHandler) GET(w http.ResponseWriter, r *http.Request) {
+	id, status := h.GetThreadSlugFromParam(w, r, "slug")
 	if status == bh.EmptyQuery {
-		h.Error(ctx, status, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, status, handler_errors.InvalidQueries)
+		return
 	}
 
-	pag, status, err := h.GetPaginationFromQuery(ctx)
+	pag, status, err := h.GetPaginationFromQuery(w, r)
 	if err != nil {
-		h.Error(ctx, status, err)
-		return nil
+		h.Error(w, r, status, err)
+		return
 	}
 
 	since, err := strconv.ParseInt(pag.Since, 10, 64)
 	if err != nil && pag.Since != "" {
-		h.Error(ctx, status, handler_errors.InvalidQueries)
-		return nil
+		h.Error(w, r, status, handler_errors.InvalidQueries)
+		return
 	}
 
 	if pag.Since == "" {
 		since = app.InvalidInt
 	}
 
-	sortType, status := h.GetStringFromQueries(ctx, "sort")
+	sortType, status := h.GetStringFromQueries(w, r, "sort")
 	if status == bh.EmptyQuery {
 		sortType = "flat"
 	}
@@ -64,11 +63,11 @@ func (h *ThreadPostsHandler) GET(ctx echo.Context) error {
 	})
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get psts %v", psts)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToPostsResponse(psts))
-	return nil
+	//h.Log(w, r).Debugf("get psts %v", psts)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToPostsResponse(psts))
+	return
 }

@@ -1,7 +1,6 @@
 package thread_create_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/thread"
@@ -27,19 +26,19 @@ func NewThreadCreateHandler(log *logrus.Logger, rep repository.Repository) *Thre
 	return h
 }
 
-func (h *ThreadCreateHandler) POST(ctx echo.Context) error {
+func (h *ThreadCreateHandler) POST(w http.ResponseWriter, r *http.Request) {
 	req := &http_delivery.ThreadCreateRequest{}
-	err := h.GetRequestBody(ctx, req)
+	err := h.GetRequestBody(w, r, req)
 	if err != nil {
-		//h.Log(ctx).Warnf("can not parse request %s", err)
-		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
-		return nil
+		//h.Log(w, r).Warnf("can not parse request %s", err)
+		h.Error(w, r, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
+		return
 	}
 
-	slug, status := h.GetStringFromParam(ctx, "slug")
+	slug, status := h.GetStringFromParam(w, r, "slug")
 	if status == bh.EmptyQuery {
-		ctx.Response().WriteHeader(http.StatusBadRequest)
-		return nil
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	if req.Forum == "" {
@@ -56,17 +55,17 @@ func (h *ThreadCreateHandler) POST(ctx echo.Context) error {
 	})
 
 	if err == postgresql_utilits.Conflict {
-		//h.Log(ctx).Warnf("conflict with request %v", req)
-		h.Respond(ctx, http.StatusConflict, http_delivery.ToThreadResponse(thr))
-		return nil
+		//h.Log(w, r).Warnf("conflict with request %v", req)
+		h.Respond(w, r, http.StatusConflict, http_delivery.ToThreadResponse(thr))
+		return
 	}
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsPOST)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsPOST)
+		return
 	}
 
-	//h.Log(ctx).Debugf("create thread %v", thr)
-	h.Respond(ctx, http.StatusCreated, http_delivery.ToThreadResponse(thr))
-	return nil
+	//h.Log(w, r).Debugf("create thread %v", thr)
+	h.Respond(w, r, http.StatusCreated, http_delivery.ToThreadResponse(thr))
+	return
 }

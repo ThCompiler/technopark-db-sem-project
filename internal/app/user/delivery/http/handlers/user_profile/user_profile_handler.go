@@ -1,7 +1,6 @@
 package user_profile_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/user"
@@ -26,37 +25,37 @@ func NewUserProfileHandler(log *logrus.Logger, rep repository.Repository) *UserP
 	return h
 }
 
-func (h *UserProfileHandler) GET(ctx echo.Context) error {
-	nickname, status := h.GetStringFromParam(ctx, "nickname")
+func (h *UserProfileHandler) GET(w http.ResponseWriter, r *http.Request) {
+	nickname, status := h.GetStringFromParam(w, r, "nickname")
 	if status == bh.EmptyQuery {
-		ctx.Response().WriteHeader(http.StatusBadRequest)
-		return nil
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	u, err := h.userRepository.Get(nickname)
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsGET)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsGET)
+		return
 	}
 
-	//h.Log(ctx).Debugf("get user %v", u)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToUserResponse(u))
-	return nil
+	//h.Log(w, r).Debugf("get user %v", u)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToUserResponse(u))
+	return
 }
 
-func (h *UserProfileHandler) POST(ctx echo.Context) error {
+func (h *UserProfileHandler) POST(w http.ResponseWriter, r *http.Request) {
 	req := &http_delivery.UserUpdateRequest{}
-	err := h.GetRequestBody(ctx, req)
+	err := h.GetRequestBody(w, r, req)
 	if err != nil {
-		//h.Log(ctx).Warnf("can not parse request %s", err)
-		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
-		return nil
+		//h.Log(w, r).Warnf("can not parse request %s", err)
+		h.Error(w, r, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
+		return
 	}
 
-	nickname, status := h.GetStringFromParam(ctx, "nickname")
+	nickname, status := h.GetStringFromParam(w, r, "nickname")
 	if status == bh.EmptyQuery {
-		ctx.Response().WriteHeader(http.StatusBadRequest)
-		return nil
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	u, err := h.userRepository.Update(&user.User{
@@ -67,11 +66,11 @@ func (h *UserProfileHandler) POST(ctx echo.Context) error {
 	})
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsPOST)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsPOST)
+		return
 	}
 
-	//h.Log(ctx).Debugf("update user %v", u)
-	h.Respond(ctx, http.StatusOK, http_delivery.ToUserResponse(u))
-	return nil
+	//h.Log(w, r).Debugf("update user %v", u)
+	h.Respond(w, r, http.StatusOK, http_delivery.ToUserResponse(u))
+	return
 }

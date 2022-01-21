@@ -1,7 +1,6 @@
 package forum_create_handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum"
@@ -27,13 +26,13 @@ func NewForumCreateHandler(log *logrus.Logger, rep repository.Repository) *Forum
 	return h
 }
 
-func (h *ForumCreateHandler) POST(ctx echo.Context) error {
+func (h *ForumCreateHandler) POST(w http.ResponseWriter, r *http.Request) {
 	req := &http_delivery.ForumCreateRequest{}
-	err := h.GetRequestBody(ctx, req)
+	err := h.GetRequestBody(w, r, req)
 	if err != nil {
-		//h.Log(ctx).Warnf("can not parse request %s", err)
-		h.Error(ctx, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
-		return nil
+		//h.Log(w, r).Warnf("can not parse request %s", err)
+		h.Error(w, r, http.StatusUnprocessableEntity, handler_errors.InvalidBody)
+		return
 	}
 
 	frm, err := h.forumRepository.Create(&forum.Forum{
@@ -43,17 +42,17 @@ func (h *ForumCreateHandler) POST(ctx echo.Context) error {
 	})
 
 	if err == postgresql_utilits.Conflict {
-		//h.Log(ctx).Warnf("conflict with request %v", req)
-		h.Respond(ctx, http.StatusConflict, http_delivery.ToForumResponse(frm))
-		return nil
+		//h.Log(w, r).Warnf("conflict with request %v", req)
+		h.Respond(w, r, http.StatusConflict, http_delivery.ToForumResponse(frm))
+		return
 	}
 
 	if err != nil {
-		h.UsecaseError(ctx, err, codesByErrorsPOST)
-		return nil
+		h.UsecaseError(w, r, err, codesByErrorsPOST)
+		return
 	}
 
-	//h.Log(ctx).Debugf("create forum %v", frm)
-	h.Respond(ctx, http.StatusCreated, http_delivery.ToForumResponse(frm))
-	return nil
+	//h.Log(w, r).Debugf("create forum %v", frm)
+	h.Respond(w, r, http.StatusCreated, http_delivery.ToForumResponse(frm))
+	return
 }
