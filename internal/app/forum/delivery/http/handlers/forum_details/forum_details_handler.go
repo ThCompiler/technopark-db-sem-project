@@ -1,7 +1,7 @@
 package forum_details_handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum/delivery/http"
@@ -24,7 +24,7 @@ func NewForumDetailsHandler(log *logrus.Logger, rep repository.Repository) *Foru
 	return h
 }
 
-func (h *ForumDetailsHandler) GET(ctx *routing.Context) error {
+func (h *ForumDetailsHandler) GET(ctx echo.Context) error {
 	id, status := h.GetStringFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
 		h.Error(ctx, http.StatusBadRequest, handler_errors.InvalidQueries)

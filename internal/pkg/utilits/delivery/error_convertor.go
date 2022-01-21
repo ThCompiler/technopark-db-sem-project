@@ -1,8 +1,8 @@
 package delivery
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
-	routing "github.com/qiangxue/fasthttp-routing"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app"
@@ -20,7 +20,7 @@ type ErrorConvertor struct {
 	Responder
 }
 
-func (h *ErrorConvertor) UsecaseError(ctx *routing.Context, usecaseErr error, codeByErr CodeMap) {
+func (h *ErrorConvertor) UsecaseError(ctx echo.Context, usecaseErr error, codeByErr CodeMap) {
 	var generalError *app.GeneralError
 	//orginalError := usecaseErr
 	if errors.As(usecaseErr, &generalError) {
@@ -41,7 +41,7 @@ func (h *ErrorConvertor) UsecaseError(ctx *routing.Context, usecaseErr error, co
 	h.Error(ctx, respond.Code, respond.Error)
 }
 
-func (h *ErrorConvertor) HandlerError(ctx *routing.Context, code int, err error) {
+func (h *ErrorConvertor) HandlerError(ctx echo.Context, code int, err error) {
 	//h.Log(ctx).Errorf("Gotted error: %v", err)
 
 	var generalError *app.GeneralError

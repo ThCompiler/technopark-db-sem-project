@@ -1,7 +1,7 @@
 package post_create_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/post/delivery/http"
@@ -25,7 +25,7 @@ func NewPostCreateHandler(log *logrus.Logger, rep repository.Repository) *PostCr
 	return h
 }
 
-func (h *PostCreateHandler) POST(ctx *routing.Context) error {
+func (h *PostCreateHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.PostsCreateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
@@ -36,7 +36,7 @@ func (h *PostCreateHandler) POST(ctx *routing.Context) error {
 
 	threadPk, status := h.GetThreadSlugFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
-		ctx.SetStatusCode(http.StatusBadRequest)
+		ctx.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
 

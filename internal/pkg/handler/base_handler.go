@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
 	hf "tech-db-forum/internal/pkg/handler/handler_interfaces"
@@ -55,7 +55,7 @@ func (h *BaseHandler) applyHFMiddleware(handlerMethod hf.HandlerFunc,
 	return resultHandlerMethod
 }
 
-func (h *BaseHandler) applyMiddleware(handler hf.Handler) routing.Handler {
+func (h *BaseHandler) applyMiddleware(handler hf.Handler) echo.HandlerFunc {
 	resultHandler := handler
 	for index := len(h.middlewares) - 1; index >= 0; index-- {
 		resultHandler = h.middlewares[index](resultHandler)
@@ -72,44 +72,44 @@ func (h *BaseHandler) getListMethods() []string {
 	return useMethods
 }
 
-func (h *BaseHandler) add(handler routing.Handler, route *routing.Route) {
+func (h *BaseHandler) add(path string, handler echo.HandlerFunc, route *echo.Group) {
 	for key := range h.handlerMethods {
 		switch key {
 		case GET:
-			route.Get(handler)
+			route.GET(path, handler)
 			break
 		case POST:
-			route.Post(handler)
+			route.POST(path, handler)
 			break
 		case PUT:
-			route.Put(handler)
+			route.PUT(path, handler)
 			break
 		case DELETE:
-			route.Delete(handler)
+			route.DELETE(path, handler)
 			break
 		case OPTIONS:
-			route.Options(handler)
+			route.OPTIONS(path, handler)
 			break
 		}
 	}
 }
 
-func (h *BaseHandler) Connect(route *routing.Route) {
-	h.add(h.applyMiddleware(h), route)
+func (h *BaseHandler) Connect(route *echo.Group, path string) {
+	h.add(path, h.applyMiddleware(h), route)
 }
 
-func (h *BaseHandler) ServeHTTP(ctx *routing.Context) error {
+func (h *BaseHandler) ServeHTTP(ctx echo.Context) error {
 	h.PrintRequest(ctx)
 	ok := true
 	var hndlr hf.HandlerFunc
 
-	hndlr, ok = h.handlerMethods[string(ctx.Method())]
+	hndlr, ok = h.handlerMethods[ctx.Request().Method]
 	if ok {
-		hndlr(ctx)
+		return hndlr(ctx)
 	} else {
 		//h.Log(ctx).Errorf("Unexpected http method: %s", ctx.Method())
-		ctx.Response.Header.Set("Allow", strings.Join(h.getListMethods(), ", "))
-		ctx.SetStatusCode(http.StatusInternalServerError)
+		ctx.Request().Header.Set("Allow", strings.Join(h.getListMethods(), ", "))
+		ctx.Response().WriteHeader(http.StatusInternalServerError)
 	}
 	return nil
 }

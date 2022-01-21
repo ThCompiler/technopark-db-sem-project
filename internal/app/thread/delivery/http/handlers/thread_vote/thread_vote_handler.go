@@ -1,7 +1,7 @@
 package thread_vote_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/thread/delivery/http"
@@ -25,7 +25,7 @@ func NewThreadVoteHandler(log *logrus.Logger, rep repository.Repository) *Thread
 	return h
 }
 
-func (h *ThreadVoteHandler) POST(ctx *routing.Context) error {
+func (h *ThreadVoteHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.VoteRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {

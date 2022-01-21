@@ -1,7 +1,7 @@
 package thread_details_handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/thread"
@@ -26,7 +26,7 @@ func NewThreadDetailsHandler(log *logrus.Logger, rep repository.Repository) *Thr
 	return h
 }
 
-func (h *ThreadDetailsHandler) GET(ctx *routing.Context) error {
+func (h *ThreadDetailsHandler) GET(ctx echo.Context) error {
 	id, status := h.GetThreadSlugFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
 		h.Error(ctx, status, handler_errors.InvalidQueries)
@@ -44,7 +44,7 @@ func (h *ThreadDetailsHandler) GET(ctx *routing.Context) error {
 	return nil
 }
 
-func (h *ThreadDetailsHandler) POST(ctx *routing.Context) error {
+func (h *ThreadDetailsHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.ThreadUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {

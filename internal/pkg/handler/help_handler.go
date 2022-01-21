@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/mailru/easyjson"
-	routing "github.com/qiangxue/fasthttp-routing"
-	"github.com/valyala/fasthttp"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,13 +28,13 @@ type HelpHandlers struct {
 	delivery.ErrorConvertor
 }
 
-func (h *HelpHandlers) PrintRequest(ctx *routing.Context) {
+func (h *HelpHandlers) PrintRequest(ctx echo.Context) {
 	//h.Log(ctx).Infof("Request: %s. From URL: %s", ctx.Method(), string(ctx.URI().Host())+string(ctx.Path()))
 }
 
 // GetInt64FromParam HTTPErrors
 //		Status 400 handler_errors.InvalidParameters
-func (h *HelpHandlers) GetInt64FromParam(ctx *routing.Context, name string) (int64, int, error) {
+func (h *HelpHandlers) GetInt64FromParam(ctx echo.Context, name string) (int64, int, error) {
 	number := ctx.Param(name)
 	numberInt, err := strconv.ParseInt(number, 10, 64)
 	if number == "" || err != nil {
@@ -51,7 +51,7 @@ func (h *HelpHandlers) GetInt64FromParam(ctx *routing.Context, name string) (int
 //	Param desc  query bool false "
 // Errors:
 // 	Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetPaginationFromQuery(ctx *routing.Context) (*Pagination, int, error) {
+func (h *HelpHandlers) GetPaginationFromQuery(ctx echo.Context) (*Pagination, int, error) {
 	limit, code, err := h.GetInt64FromQueries(ctx, "limit")
 	if err != nil {
 		return nil, code, err
@@ -72,39 +72,50 @@ func (h *HelpHandlers) GetPaginationFromQuery(ctx *routing.Context) (*Pagination
 
 // GetInt64FromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetInt64FromQueries(ctx *routing.Context, name string) (int64, int, error) {
-	number, err := ctx.URI().QueryArgs().GetUint(name)
+func (h *HelpHandlers) GetInt64FromQueries(ctx echo.Context, name string) (int64, int, error) {
+	number := ctx.QueryParam(name)
+	if number == "" {
+		return EmptyQuery, app.InvalidInt, nil
+	}
+
+	numberInt, err := strconv.ParseInt(number, 10, 64)
 	if err != nil {
-		if err == fasthttp.ErrNoArgValue {
-			return EmptyQuery, app.InvalidInt, nil
-		}
 		return app.InvalidInt, http.StatusBadRequest, handler_errors.InvalidQueries
 	}
 
-	return int64(number), app.InvalidInt, nil
+	return numberInt, app.InvalidInt, nil
 }
 
 // GetBoolFromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetBoolFromQueries(ctx *routing.Context, name string) bool {
-	res := ctx.URI().QueryArgs().GetBool(name)
-	return res
+func (h *HelpHandlers) GetBoolFromQueries(ctx echo.Context, name string) bool {
+	number := ctx.QueryParam(name)
+	if number == "" {
+		return false
+	}
+
+	numberInt, err := strconv.ParseBool(number)
+	if err != nil {
+		return false
+	}
+
+	return numberInt
 }
 
 // GetStringFromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetStringFromQueries(ctx *routing.Context, name string) (string, int) {
-	value := ctx.URI().QueryArgs().Peek(name)
-	if value == nil {
+func (h *HelpHandlers) GetStringFromQueries(ctx echo.Context, name string) (string, int) {
+	value := ctx.QueryParam(name)
+	if value == "" {
 		return "", EmptyQuery
 	}
 
-	return string(value), app.InvalidInt
+	return value, app.InvalidInt
 }
 
 // GetStringFromParam HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetStringFromParam(ctx *routing.Context, name string) (string, int) {
+func (h *HelpHandlers) GetStringFromParam(ctx echo.Context, name string) (string, int) {
 	value := ctx.Param(name)
 	if value == "" {
 		return "", EmptyQuery
@@ -115,22 +126,18 @@ func (h *HelpHandlers) GetStringFromParam(ctx *routing.Context, name string) (st
 
 // GetArrayStringFromQueries HTTPErrors
 //		Status 400 handler_errors.InvalidQueries
-func (h *HelpHandlers) GetArrayStringFromQueries(ctx *routing.Context, name string) ([]string, int) {
-	values := ctx.URI().QueryArgs().PeekMultiBytes([]byte(name))
-	if values == nil {
+func (h *HelpHandlers) GetArrayStringFromQueries(ctx echo.Context, name string) ([]string, int) {
+	values := ctx.QueryParam(name)
+	if values == "" {
 		return nil, EmptyQuery
 	}
 
-	var res []string
-	for _, value := range values {
-		res = append(res, strings.Split(string(value), ",")...)
-	}
-	return res, app.InvalidInt
+	return strings.Split(values, ","), app.InvalidInt
 }
 
 // GetThreadSlugFromParam HTTPErrors
 //		Status 400 handler_errors.InvalidParameters
-func (h *HelpHandlers) GetThreadSlugFromParam(ctx *routing.Context, name string) (*thread.ThreadPK, int) {
+func (h *HelpHandlers) GetThreadSlugFromParam(ctx echo.Context, name string) (*thread.ThreadPK, int) {
 	value := ctx.Param(name)
 	if value == "" {
 		return nil, EmptyQuery
@@ -145,6 +152,13 @@ func (h *HelpHandlers) GetThreadSlugFromParam(ctx *routing.Context, name string)
 	return res, app.InvalidInt
 }
 
-func (h *HelpHandlers) GetRequestBody(ctx *routing.Context, reqStruct easyjson.Unmarshaler) error {
-	return easyjson.Unmarshal(ctx.PostBody(), reqStruct)
+func (h *HelpHandlers) GetRequestBody(ctx echo.Context, reqStruct easyjson.Unmarshaler) error {
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(ctx.Request().Body)
+
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, reqStruct); err != nil {
+		return err
+	}
+	return nil
 }

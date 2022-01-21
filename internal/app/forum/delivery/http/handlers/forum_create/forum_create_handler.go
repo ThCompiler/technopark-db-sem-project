@@ -1,7 +1,7 @@
 package forum_create_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum"
@@ -27,7 +27,7 @@ func NewForumCreateHandler(log *logrus.Logger, rep repository.Repository) *Forum
 	return h
 }
 
-func (h *ForumCreateHandler) POST(ctx *routing.Context) error {
+func (h *ForumCreateHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.ForumCreateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {

@@ -2,15 +2,12 @@ package server
 
 import (
 	"fmt"
-	routing "github.com/qiangxue/fasthttp-routing"
-	"github.com/valyala/fasthttp"
+	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 	"tech-db-forum/internal"
 	"tech-db-forum/internal/app"
 	"tech-db-forum/internal/app/factories/handler_factory"
 	"tech-db-forum/internal/app/factories/repository_factory"
-	"tech-db-forum/internal/app/middleware"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type Server struct {
@@ -55,7 +52,7 @@ func (s *Server) Start(config *internal.Config) error {
 		return err
 	}
 
-	router := routing.New()
+	router := echo.New()
 	//router.Get("/debug/pprof/<profile>", handler_interfaces.FastHTTPFunc(pprofhandler.PprofHandler).ServeHTTP)
 
 	routerApi := router.Group("/api")
@@ -64,13 +61,13 @@ func (s *Server) Start(config *internal.Config) error {
 	factory := handler_factory.NewFactory(s.logger, repositoryFactory)
 	hs := factory.GetHandleUrls()
 
-	utilitsMiddleware := middleware.NewUtilitiesMiddleware(s.logger)
-	routerApi.Use(utilitsMiddleware.UpgradeLogger().ServeHTTP, utilitsMiddleware.CheckPanic().ServeHTTP)
+	//utilitsMiddleware := middleware.NewUtilitiesMiddleware(s.logger)
+	//routerApi.Use(utilitsMiddleware.UpgradeLogger().ServeHTTP, utilitsMiddleware.CheckPanic().ServeHTTP)
 
 	for apiUrl, h := range *hs {
-		h.Connect(routerApi.Connect(apiUrl))
+		h.Connect(routerApi, apiUrl)
 	}
 
 	//s.logger.Info("start no http server")
-	return fasthttp.ListenAndServe(config.BindAddr, router.HandleRequest)
+	return router.Start(config.BindAddr)
 }

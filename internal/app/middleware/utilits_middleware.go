@@ -18,15 +18,15 @@ func NewUtilitiesMiddleware(log *logrus.Logger) UtilitiesMiddleware {
 		log: utilits.NewLogObject(log),
 	}
 }
-
+/*
 func (mw *UtilitiesMiddleware) CheckPanic() hf.Handler {
-	return hf.HandlerFunc(func(ctx *routing.Context) error {
-		defer func(log *logrus.Entry, ctx *routing.Context) {
+	return hf.HandlerFunc(func(ctx echo.Context) error {
+		defer func(log *logrus.Entry, ctx echo.Context) {
 			if err := recover(); err != nil {
 				responseErr := http.StatusInternalServerError
 
 				log.Errorf("detacted critical error: %v, with stack: %s", err, debug.Stack())
-				ctx.SetStatusCode(responseErr)
+				ctx.Response().WriteHeader(responseErr)
 			}
 		}(mw.log.Log(ctx), ctx)
 		return ctx.Next()
@@ -34,7 +34,7 @@ func (mw *UtilitiesMiddleware) CheckPanic() hf.Handler {
 }
 
 func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
-	return hf.HandlerFunc(func(ctx *routing.Context) error {
+	return hf.HandlerFunc(func(ctx echo.Context) error {
 		/*start := time.Now()
 		upgradeLogger := mw.log.BaseLog().WithFields(logrus.Fields{
 			"urls":        ctx.URI().String(),
@@ -53,4 +53,4 @@ func (mw *UtilitiesMiddleware) UpgradeLogger() hf.Handler {
 		return err*/
 		return err
 	})
-}
+}*/

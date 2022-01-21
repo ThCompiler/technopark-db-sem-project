@@ -1,7 +1,7 @@
 package post_details_handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	repForum "tech-db-forum/internal/app/forum/repository"
@@ -36,7 +36,7 @@ func NewPostDetailsHandler(log *logrus.Logger, rep repository.Repository, repTh 
 	return h
 }
 
-func (h *PostDetailsHandler) GET(ctx *routing.Context) error {
+func (h *PostDetailsHandler) GET(ctx echo.Context) error {
 	id, status, err := h.GetInt64FromParam(ctx, "id")
 	if err != nil {
 		h.Error(ctx, status, err)
@@ -62,7 +62,7 @@ func (h *PostDetailsHandler) GET(ctx *routing.Context) error {
 	return nil
 }
 
-func (h *PostDetailsHandler) POST(ctx *routing.Context) error {
+func (h *PostDetailsHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.PostUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {

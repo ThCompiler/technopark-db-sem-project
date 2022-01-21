@@ -1,7 +1,7 @@
 package thread_posts_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
@@ -28,7 +28,7 @@ func NewThreadPostsHandler(log *logrus.Logger, rep repository.Repository) *Threa
 	return h
 }
 
-func (h *ThreadPostsHandler) GET(ctx *routing.Context) error {
+func (h *ThreadPostsHandler) GET(ctx echo.Context) error {
 	id, status := h.GetThreadSlugFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
 		h.Error(ctx, status, handler_errors.InvalidQueries)

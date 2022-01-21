@@ -1,7 +1,7 @@
 package user_profile_handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/user"
@@ -26,10 +26,10 @@ func NewUserProfileHandler(log *logrus.Logger, rep repository.Repository) *UserP
 	return h
 }
 
-func (h *UserProfileHandler) GET(ctx *routing.Context) error {
+func (h *UserProfileHandler) GET(ctx echo.Context) error {
 	nickname, status := h.GetStringFromParam(ctx, "nickname")
 	if status == bh.EmptyQuery {
-		ctx.SetStatusCode(http.StatusBadRequest)
+		ctx.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
 
@@ -44,7 +44,7 @@ func (h *UserProfileHandler) GET(ctx *routing.Context) error {
 	return nil
 }
 
-func (h *UserProfileHandler) POST(ctx *routing.Context) error {
+func (h *UserProfileHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.UserUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
@@ -55,7 +55,7 @@ func (h *UserProfileHandler) POST(ctx *routing.Context) error {
 
 	nickname, status := h.GetStringFromParam(ctx, "nickname")
 	if status == bh.EmptyQuery {
-		ctx.SetStatusCode(http.StatusBadRequest)
+		ctx.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
 

@@ -1,7 +1,7 @@
 package user_create_handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/user"
@@ -26,7 +26,7 @@ func NewUserCreateHandler(log *logrus.Logger, rep repository.Repository) *UserCr
 	return h
 }
 
-func (h *UserCreateHandler) POST(ctx *routing.Context) error {
+func (h *UserCreateHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.UserUpdateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
@@ -37,7 +37,7 @@ func (h *UserCreateHandler) POST(ctx *routing.Context) error {
 
 	nickname, status := h.GetStringFromParam(ctx, "nickname")
 	if status == bh.EmptyQuery {
-		ctx.SetStatusCode(http.StatusBadRequest)
+		ctx.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
 

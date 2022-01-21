@@ -1,7 +1,7 @@
 package service_clear_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/service/repository"
@@ -22,7 +22,7 @@ func NewServiceClearHandler(log *logrus.Logger, rep repository.Repository) *Serv
 	return h
 }
 
-func (h *ServiceClearHandler) POST(ctx *routing.Context) error {
+func (h *ServiceClearHandler) POST(ctx echo.Context) error {
 	err := h.serviceRepository.Clear()
 	if err != nil {
 		h.UsecaseError(ctx, err, codesByErrorsPOST)
@@ -30,6 +30,6 @@ func (h *ServiceClearHandler) POST(ctx *routing.Context) error {
 	}
 
 	//h.Log(ctx).Debug("bd was cleared")
-	ctx.SetStatusCode(http.StatusOK)
+	ctx.Response().WriteHeader(http.StatusOK)
 	return nil
 }

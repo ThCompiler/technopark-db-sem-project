@@ -1,7 +1,7 @@
 package thread_create_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/thread"
@@ -27,7 +27,7 @@ func NewThreadCreateHandler(log *logrus.Logger, rep repository.Repository) *Thre
 	return h
 }
 
-func (h *ThreadCreateHandler) POST(ctx *routing.Context) error {
+func (h *ThreadCreateHandler) POST(ctx echo.Context) error {
 	req := &http_delivery.ThreadCreateRequest{}
 	err := h.GetRequestBody(ctx, req)
 	if err != nil {
@@ -38,7 +38,7 @@ func (h *ThreadCreateHandler) POST(ctx *routing.Context) error {
 
 	slug, status := h.GetStringFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
-		ctx.SetStatusCode(http.StatusBadRequest)
+		ctx.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
 

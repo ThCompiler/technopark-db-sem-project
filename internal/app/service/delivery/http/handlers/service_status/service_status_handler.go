@@ -1,7 +1,7 @@
 package service_status_handler
 
 import (
-	routing "github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/service/delivery/http"
@@ -23,7 +23,7 @@ func NewServiceStatusHandler(log *logrus.Logger, rep repository.Repository) *Ser
 	return h
 }
 
-func (h *ServiceStatusHandler) GET(ctx *routing.Context) error {
+func (h *ServiceStatusHandler) GET(ctx echo.Context) error {
 	stat, err := h.serviceRepository.GetStat()
 	if err != nil {
 		h.UsecaseError(ctx, err, codesByErrorsGET)

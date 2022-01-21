@@ -1,7 +1,7 @@
 package forum_users_handler
 
 import (
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"tech-db-forum/internal/app/forum"
@@ -25,7 +25,7 @@ func NewForumUsersHandler(log *logrus.Logger, rep repository.Repository) *ForumU
 	return h
 }
 
-func (h *ForumUsersHandler) GET(ctx *routing.Context) error {
+func (h *ForumUsersHandler) GET(ctx echo.Context) error {
 	slug, status := h.GetStringFromParam(ctx, "slug")
 	if status == bh.EmptyQuery {
 		h.Error(ctx, http.StatusBadRequest, handler_errors.InvalidQueries)
