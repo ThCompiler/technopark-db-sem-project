@@ -13,16 +13,16 @@ const (
 	getUsersQueryASC = `
 					SELECT ur.nickname, ur.fullname, ur.about, ur.email FROM users_to_forums
 					JOIN users ur on ur.nickname = users_to_forums.nickname
-					WHERE forum = $1 AND ur.nickname > $2
-					ORDER BY ur.nickname
+					WHERE forum = $1 AND users_to_forums.nickname > $2
+					ORDER BY users_to_forums.nickname
 					LIMIT $3
 					`
 
 	getUsersQueryDESCWithWhere = `
 					SELECT ur.nickname, ur.fullname, ur.about, ur.email FROM users_to_forums
 					JOIN users ur on ur.nickname = users_to_forums.nickname
-					WHERE forum = $1 AND ur.nickname < $2
-					ORDER BY ur.nickname DESC
+					WHERE forum = $1 AND users_to_forums.nickname < $2
+					ORDER BY users_to_forums.nickname DESC
 					LIMIT $3
 					`
 
@@ -30,7 +30,7 @@ const (
 					SELECT ur.nickname, ur.fullname, ur.about, ur.email FROM users_to_forums
 					JOIN users ur on ur.nickname = users_to_forums.nickname
 					WHERE forum = $1
-					ORDER BY ur.nickname DESC
+					ORDER BY users_to_forums.nickname DESC
 					LIMIT $2
 					`
 
