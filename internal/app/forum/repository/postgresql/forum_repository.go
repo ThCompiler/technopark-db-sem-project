@@ -11,26 +11,23 @@ import (
 
 const (
 	getUsersQueryASC = `
-					SELECT ur.nickname, ur.fullname, ur.about, ur.email FROM users_to_forums
-					JOIN users ur on ur.nickname = users_to_forums.nickname
-					WHERE forum = $1 AND users_to_forums.nickname > $2
-					ORDER BY users_to_forums.nickname
+					SELECT nickname, fullname, about, email FROM users_to_forums
+					WHERE forum = $1 AND nickname > $2
+					ORDER BY nickname
 					LIMIT $3
 					`
 
 	getUsersQueryDESCWithWhere = `
-					SELECT ur.nickname, ur.fullname, ur.about, ur.email FROM users_to_forums
-					JOIN users ur on ur.nickname = users_to_forums.nickname
-					WHERE forum = $1 AND users_to_forums.nickname < $2
-					ORDER BY users_to_forums.nickname DESC
+					SELECT nickname, fullname, about, email FROM users_to_forums
+					WHERE forum = $1 AND nickname < $2
+					ORDER BY nickname DESC
 					LIMIT $3
 					`
 
 	getUsersQueryDESCWithoutWhere = `
-					SELECT ur.nickname, ur.fullname, ur.about, ur.email FROM users_to_forums
-					JOIN users ur on ur.nickname = users_to_forums.nickname
+					SELECT nickname, fullname, about, email FROM users_to_forums
 					WHERE forum = $1
-					ORDER BY users_to_forums.nickname DESC
+					ORDER BY nickname DESC
 					LIMIT $2
 					`
 

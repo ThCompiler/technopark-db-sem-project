@@ -2,6 +2,8 @@ package forum
 
 import "time"
 
+//go:generate easyjson -all -disallow_unknown_fields models.go
+
 type Forum struct {
 	Title   string `json:"title"`
 	User    string `json:"user"`

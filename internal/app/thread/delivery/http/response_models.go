@@ -29,12 +29,12 @@ func ToPostResponse(pst *thread.Post) *PostResponse {
 }
 
 //easyjson:json
-type PostsResponse []PostResponse
+type PostsResponse []thread.Post
 
 func ToPostsResponse(psts []thread.Post) *PostsResponse {
-	res := PostsResponse{}
-	for _, pst := range psts {
-		res = append(res, *ToPostResponse(&pst))
+	if psts == nil {
+		psts = []thread.Post{}
 	}
+	res := PostsResponse(psts)
 	return &res
 }

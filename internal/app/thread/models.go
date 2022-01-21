@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+//go:generate easyjson -all -disallow_unknown_fields models.go
+
 type SortType int64
 
 const (

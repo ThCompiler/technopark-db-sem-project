@@ -16,7 +16,7 @@ USER postgres
 
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/12/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/12/main/postgresql.conf
-RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/12/main/postgresql.conf
+#RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/12/main/postgresql.conf
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER thecompiler WITH SUPERUSER PASSWORD 'qwerty';" &&\
     createdb -O thecompiler forum_db && /etc/init.d/postgresql stop

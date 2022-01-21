@@ -7,6 +7,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	post "tech-db-forum/internal/app/post"
 )
 
 // suppress unused package warning
@@ -246,7 +247,7 @@ func easyjson316682a0DecodeTechDbForumInternalAppPostDeliveryHttp2(in *jlexer.Le
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v1 PostResponse
+			var v1 post.Post
 			(v1).UnmarshalEasyJSON(in)
 			*out = append(*out, v1)
 			in.WantComma()

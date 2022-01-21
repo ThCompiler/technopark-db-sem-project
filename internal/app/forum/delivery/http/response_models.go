@@ -29,13 +29,13 @@ func ToThreadResponse(thr *forum.Thread) *ThreadResponse {
 }
 
 //easyjson:json
-type ThreadsResponse []ThreadResponse
+type ThreadsResponse []forum.Thread
 
 func ToThreadsResponse(thrs []forum.Thread) *ThreadsResponse {
-	res := ThreadsResponse{}
-	for _, thr := range thrs {
-		res = append(res, *ToThreadResponse(&thr))
+	if thrs == nil {
+		thrs = []forum.Thread{}
 	}
+	res := ThreadsResponse(thrs)
 	return &res
 }
 
@@ -51,12 +51,12 @@ func ToUserResponse(usr *forum.User) *UserResponse {
 }
 
 //easyjson:json
-type UsersResponse []UserResponse
+type UsersResponse []forum.User
 
 func ToUsersResponse(usrs []forum.User) *UsersResponse {
-	res := UsersResponse{}
-	for _, usr := range usrs {
-		res = append(res, *ToUserResponse(&usr))
+	if usrs == nil {
+		usrs = []forum.User{}
 	}
+	res := UsersResponse(usrs)
 	return &res
 }

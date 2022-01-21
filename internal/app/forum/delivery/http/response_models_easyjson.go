@@ -7,6 +7,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	forum "tech-db-forum/internal/app/forum"
 )
 
 // suppress unused package warning
@@ -34,7 +35,7 @@ func easyjson316682a0DecodeTechDbForumInternalAppForumDeliveryHttp(in *jlexer.Le
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v1 UserResponse
+			var v1 forum.User
 			(v1).UnmarshalEasyJSON(in)
 			*out = append(*out, v1)
 			in.WantComma()
@@ -191,7 +192,7 @@ func easyjson316682a0DecodeTechDbForumInternalAppForumDeliveryHttp2(in *jlexer.L
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v4 ThreadResponse
+			var v4 forum.Thread
 			(v4).UnmarshalEasyJSON(in)
 			*out = append(*out, v4)
 			in.WantComma()

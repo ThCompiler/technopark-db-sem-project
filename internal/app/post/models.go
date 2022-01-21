@@ -2,6 +2,8 @@ package post
 
 import "time"
 
+//go:generate easyjson -all -disallow_unknown_fields models.go
+
 type Post struct {
 	Id       int64     `json:"id"`
 	Parent   int64     `json:"parent"`

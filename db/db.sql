@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS threads
     forum   citext                                 not null references forums (slug),
     message text                                   not null,
     votes   integer     default 0                  not null,
-    slug    citext                                 unique,
+    slug    citext unique,
     created timestamptz default now()::timestamptz not null
 );
 
@@ -54,6 +54,9 @@ CREATE TABLE IF NOT EXISTS votes
 CREATE TABLE IF NOT EXISTS users_to_forums
 (
     nickname citext not null references users (nickname),
+    fullname citext not null,
+    email    citext not null,
+    about    citext not null,
     forum    citext not null references forums (slug),
     unique (nickname, forum)
 );
@@ -61,7 +64,7 @@ CREATE TABLE IF NOT EXISTS users_to_forums
 -- forums trigger --
 
 CREATE OR REPLACE FUNCTION add_post_to_forum()
-RETURNS TRIGGER AS
+    RETURNS TRIGGER AS
 $$
 BEGIN
     UPDATE forums
@@ -78,7 +81,7 @@ CREATE TRIGGER add_post_to_forum_trg
 EXECUTE PROCEDURE add_post_to_forum();
 
 CREATE OR REPLACE FUNCTION add_thread_to_forum()
-RETURNS TRIGGER AS
+    RETURNS TRIGGER AS
 $$
 BEGIN
     UPDATE forums
@@ -99,11 +102,13 @@ EXECUTE PROCEDURE add_thread_to_forum();
 
 
 CREATE OR REPLACE FUNCTION add_user_to_forum()
-RETURNS TRIGGER AS
+    RETURNS TRIGGER AS
 $$
 BEGIN
-    INSERT INTO users_to_forums (nickname, forum)
-    VALUES (NEW.author, NEW.forum)
+    INSERT INTO users_to_forums (nickname, fullname, about, email, forum)
+        SELECT NEW.author, usr.fullname, usr.about, usr.email, NEW.forum
+        FROM users as usr
+        WHERE usr.nickname = NEW.author
     ON CONFLICT do nothing;
     RETURN NEW;
 END;
@@ -177,7 +182,7 @@ CREATE TRIGGER create_post_path
     FOR EACH ROW
 EXECUTE PROCEDURE update_post_past();
 
-CREATE EXTENSION pg_stat_statements;
+--CREATE EXTENSION pg_stat_statements;
 
 -- threads indexes --
 
@@ -204,7 +209,14 @@ create index if not exists user_all on users (nickname, fullname, about, email);
 
 create index if not exists post_thread on posts (thread);
 create index if not exists post_path on posts ((path[1]));
-create index if not exists post_parent_base_sel on posts (thread, id);
-create index if not exists post_parent_base_sel on posts (id, (path[1]));
+create index if not exists post_thread_path on posts (thread, path);
+create index if not exists post_thread_path_desc on posts (thread, path desc);
+create index if not exists post_thread_id on posts (thread, id);
+create index if not exists post_thread_id_desc on posts (thread, id desc);
+create index if not exists post_id_conc_path on posts (id, (path[1]));
+create index if not exists post_id_path on posts (id, path);
 create index if not exists post_parent_sel on posts (thread, (path[1]), id) WHERE parent = 0;
 create index if not exists post_author_hash on posts using hash (author);
+
+VACUUM;
+VACUUM ANALYSE;

@@ -7,6 +7,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	thread "tech-db-forum/internal/app/thread"
 )
 
 // suppress unused package warning
@@ -155,7 +156,7 @@ func easyjson316682a0DecodeTechDbForumInternalAppThreadDeliveryHttp1(in *jlexer.
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v1 PostResponse
+			var v1 thread.Post
 			(v1).UnmarshalEasyJSON(in)
 			*out = append(*out, v1)
 			in.WantComma()

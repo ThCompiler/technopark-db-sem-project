@@ -21,13 +21,13 @@ func ToPostResponse(pst *post.Post) *PostResponse {
 }
 
 //easyjson:json
-type PostsResponse []PostResponse
+type PostsResponse []post.Post
 
 func ToPostsResponse(psts []post.Post) *PostsResponse {
-	res := PostsResponse{}
-	for _, pst := range psts {
-		res = append(res, *ToPostResponse(&pst))
+	if psts == nil {
+		psts = []post.Post{}
 	}
+	res := PostsResponse(psts)
 	return &res
 }
 
